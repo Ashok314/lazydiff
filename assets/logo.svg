@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="280" viewBox="0 0 960 280" role="img" aria-labelledby="title desc">
+  <title id="title">lazydiff</title>
+  <desc id="desc">LazyDiff wordmark with a compact filtered diff icon.</desc>
+  <rect width="960" height="280" rx="28" fill="#f6f8fa"/>
+  <g transform="translate(64 52)">
+    <rect width="176" height="176" rx="38" fill="#24292f"/>
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M42 52h16" stroke="#2da44e" stroke-width="12"/>
+      <path d="M50 44v16" stroke="#2da44e" stroke-width="12"/>
+      <path d="M84 52h56" stroke="#f6f8fa" stroke-width="12"/>
+      <path d="M42 88h44" stroke="#cf222e" stroke-width="12"/>
+      <path d="M110 88h42" stroke="#8c959f" stroke-width="12" opacity=".68"/>
+      <path d="M42 126h28" stroke="#8c959f" stroke-width="11" opacity=".68"/>
+      <path d="M94 126h34" stroke="#8c959f" stroke-width="11" opacity=".68"/>
+      <path d="M148 108v18" stroke="#f6f8fa" stroke-width="9"/>
+      <path d="M148 140h1" stroke="#f6f8fa" stroke-width="10"/>
+    </g>
+  </g>
+  <text x="280" y="128" fill="#24292f" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="78" font-weight="800" letter-spacing="0">lazydiff</text>
+  <text x="284" y="180" fill="#57606a" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="28" font-weight="600" letter-spacing="0">Lazy enough to review.</text>
+</svg>

@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Ashok's profile
+    url: https://ashok314.github.io/
+    about: Learn more about the maintainer.
+  - name: Support the project
+    url: https://buymeacoffee.com/ashok314
+    about: Buy me a coffee if LazyDiff saves you review time.

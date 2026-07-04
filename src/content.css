@@ -1,0 +1,77 @@
+.lazydiff-hidden-file {
+  display: none !important;
+}
+
+.lazydiff-bar {
+  --lazydiff-bg: #f6f8fa;
+  --lazydiff-border: #d0d7de;
+  --lazydiff-fg: #24292f;
+  --lazydiff-muted: #57606a;
+  --lazydiff-success: #2da44e;
+  align-items: center;
+  background: var(--bgColor-muted, var(--lazydiff-bg));
+  border: 1px solid var(--borderColor-default, var(--lazydiff-border));
+  border-left: 3px solid var(--lazydiff-success);
+  border-radius: 6px;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 12px;
+  padding: 8px 10px;
+  width: 100%;
+}
+
+.lazydiff-bar-label {
+  color: var(--fgColor-default, var(--lazydiff-fg));
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.lazydiff-bar-input {
+  background: var(--bgColor-default, #ffffff);
+  border: 1px solid var(--borderColor-default, var(--lazydiff-border));
+  border-radius: 6px;
+  box-sizing: border-box;
+  color: var(--fgColor-default, var(--lazydiff-fg));
+  flex: 1 1 320px;
+  font:
+    12px ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+  line-height: 20px;
+  min-width: 220px;
+  padding: 4px 8px;
+}
+
+.lazydiff-bar-input:focus {
+  border-color: var(--lazydiff-success);
+  box-shadow: 0 0 0 3px rgba(45, 164, 78, 0.16);
+  outline: none;
+}
+
+.lazydiff-bar-status {
+  color: var(--fgColor-muted, var(--lazydiff-muted));
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.lazydiff-diffstat {
+  display: inline-flex;
+  gap: 6px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.lazydiff-diffstat-label {
+  color: var(--fgColor-muted, #57606a);
+  font-weight: 600;
+}
+
+.lazydiff-diffstat[title] {
+  cursor: help;
+}

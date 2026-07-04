@@ -1,0 +1,59 @@
+name: Bug report
+description: Report something broken in LazyDiff.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this. LazyDiff depends on GitHub's PR page layout, so screenshots and exact filter text help a lot.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe what you expected and what actually happened.
+      placeholder: "Example: `!*.spec.ts` hides the diff content but not the file navigation."
+    validations:
+      required: true
+
+  - type: input
+    id: filter
+    attributes:
+      label: Filter input
+      description: Paste the LazyDiff filter you used.
+      placeholder: "apps !tests/** !*.spec.ts"
+
+  - type: input
+    id: github-url
+    attributes:
+      label: GitHub PR URL shape
+      description: Use a redacted URL if the repository is private.
+      placeholder: "https://github.com/owner/repo/pull/123/files"
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Broken area
+      options:
+        - Filter bar
+        - File hiding
+        - File navigation hiding
+        - Diff count
+        - Popup
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+      placeholder: "Chrome 126, Edge 126, Arc, etc."
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or console logs
+      description: Add screenshots or relevant `[lazydiff]` console logs if debug was enabled.

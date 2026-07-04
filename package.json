@@ -1,0 +1,19 @@
+{
+  "name": "lazydiff",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Negative filters for GitHub PR files with filtered diff-size counts.",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "package:extension": "npm run build && node scripts/package-extension.mjs",
+    "precommit": "npm run format:check && npm test",
+    "serve:site": "node scripts/serve-site.mjs",
+    "zip:extension": "npm run package:extension && node scripts/zip-extension.mjs",
+    "test": "npm run build && node --test tests/*.test.mjs"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
+}
