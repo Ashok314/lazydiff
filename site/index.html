@@ -10,6 +10,7 @@
     <title>lazydiff - Lazy enough to review</title>
     <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
   </head>
   <body>
     <header class="site-header">
@@ -17,26 +18,37 @@
         <img src="assets/icon.svg" alt="" />
         <span>lazydiff</span>
       </a>
-      <nav>
-        <a href="#screenshots">Screenshots</a>
-        <a href="#syntax">Syntax</a>
-        <a href="#privacy">Privacy</a>
-        <a href="https://github.com/Ashok314/lazydiff">GitHub</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="#screenshots" data-i18n="nav.screenshots">Screenshots</a>
+        <a href="#syntax" data-i18n="nav.syntax">Syntax</a>
+        <a href="#privacy" data-i18n="nav.privacy">Privacy</a>
+        <a data-site-url="website" href="https://ashok314.github.io/lazydiff/" data-i18n="nav.website">Website</a>
+        <a data-site-url="github" href="https://github.com/Ashok314/lazydiff" data-i18n="nav.github">GitHub</a>
       </nav>
+      <div class="site-controls" aria-label="Site preferences">
+        <button type="button" data-theme-toggle aria-label="Toggle color theme">Dark</button>
+        <button type="button" data-lang-toggle aria-label="Switch language">JA</button>
+      </div>
     </header>
 
     <main>
       <section class="hero">
         <div class="hero-copy">
-          <p class="eyebrow">Negative filters for GitHub PRs</p>
-          <h1>Lazy enough to review.</h1>
-          <p class="lede">
+          <p class="eyebrow" data-i18n="hero.eyebrow">Negative filters for GitHub PRs</p>
+          <h1 data-i18n="hero.title">Lazy enough to review.</h1>
+          <p class="lede" data-i18n="hero.lede">
             Hide tests, generated files, specs, or any path you do not want to review, then see the diff size that
             remains.
           </p>
           <div class="actions">
-            <a class="button primary" href="#install">Install soon</a>
-            <a class="button" href="https://github.com/Ashok314/lazydiff">View source</a>
+            <a class="button primary" href="#install" data-i18n="actions.install">Install soon</a>
+            <a
+              class="button"
+              data-site-url="github"
+              href="https://github.com/Ashok314/lazydiff"
+              data-i18n="actions.source"
+              >View source</a
+            >
           </div>
         </div>
         <div class="demo" aria-label="LazyDiff example">
@@ -48,7 +60,7 @@
           <div class="filter-bar">
             <strong>lazydiff</strong>
             <code>apps !*.spec.ts</code>
-            <span>12 visible files, 24 hidden files</span>
+            <span data-i18n="demo.count">12 visible files, 24 hidden files</span>
           </div>
           <div class="github-line active">
             <span>lazydiff</span>
@@ -66,60 +78,66 @@
 
       <section class="section" id="screenshots">
         <div>
-          <p class="eyebrow">Screenshots</p>
-          <h2>Before, after, closeup, and the tiny popup.</h2>
+          <p class="eyebrow" data-i18n="screenshots.eyebrow">Screenshots</p>
+          <h2 data-i18n="screenshots.title">Before, after, closeup, and the tiny popup.</h2>
         </div>
         <div class="screenshots">
-          <figure class="screenshot wide">
+          <figure class="screenshot compare">
             <img src="assets/screenshots/before.png" alt="GitHub pull request before LazyDiff filtering" />
-            <figcaption>Before: GitHub shows the full pull request diff size.</figcaption>
+            <figcaption data-i18n="screenshots.before">
+              Before: GitHub shows the full pull request diff size.
+            </figcaption>
           </figure>
-          <figure class="screenshot wide">
+          <figure class="screenshot compare">
             <img src="assets/screenshots/after.png" alt="LazyDiff negative filter applied to a GitHub pull request" />
-            <figcaption>After: hide unwanted files and see the remaining diff size.</figcaption>
+            <figcaption data-i18n="screenshots.after">
+              After: hide unwanted files and see the remaining diff size.
+            </figcaption>
           </figure>
           <figure class="screenshot wide">
             <img src="assets/screenshots/closeup.png" alt="Closeup of LazyDiff filtered counts and filter bar" />
-            <figcaption>Closeup: LazyDiff count and filter bar on the files changed page.</figcaption>
+            <figcaption data-i18n="screenshots.closeup">
+              Closeup: LazyDiff count and filter bar on the files changed page.
+            </figcaption>
           </figure>
           <figure class="screenshot popup-shot">
             <img src="assets/screenshots/popup.png" alt="LazyDiff extension popup" />
-            <figcaption>Info-only popup. Filtering happens on the PR page.</figcaption>
+            <figcaption data-i18n="screenshots.popup">Info-only popup. Filtering happens on the PR page.</figcaption>
           </figure>
         </div>
       </section>
 
       <section class="section" id="syntax">
         <div>
-          <p class="eyebrow">Custom syntax</p>
-          <h2>One box for include and exclude.</h2>
+          <p class="eyebrow" data-i18n="syntax.eyebrow">Custom syntax</p>
+          <h2 data-i18n="syntax.title">One box for include and exclude.</h2>
         </div>
         <div class="syntax-grid">
           <article>
             <code>apps</code>
-            <p>Show matching paths.</p>
+            <p data-i18n="syntax.apps">Show matching paths.</p>
           </article>
           <article>
             <code>!apps</code>
-            <p>Hide matching paths.</p>
+            <p data-i18n="syntax.notApps">Hide matching paths.</p>
           </article>
           <article>
             <code>!/apps</code>
-            <p>Hide root paths only.</p>
+            <p data-i18n="syntax.root">Hide root paths only.</p>
           </article>
           <article>
             <code>apps !*.spec.ts</code>
-            <p>Show apps, except specs.</p>
+            <p data-i18n="syntax.combo">Show apps, except specs.</p>
           </article>
         </div>
       </section>
 
       <section class="section split" id="privacy">
         <div>
-          <p class="eyebrow">Private by default</p>
-          <h2>No network. No analytics. No code leaves your browser.</h2>
+          <p class="eyebrow" data-i18n="privacy.eyebrow">Private by default</p>
+          <h2 data-i18n="privacy.title">No network. No analytics. No code leaves your browser.</h2>
         </div>
-        <p>
+        <p data-i18n-html="privacy.body">
           LazyDiff runs locally on GitHub PR pages. Filter text is stored only in Chrome local storage. See the
           <a href="privacy/">privacy policy</a>.
         </p>
@@ -127,17 +145,19 @@
 
       <section class="section split" id="install">
         <div>
-          <p class="eyebrow">Chrome Web Store</p>
-          <h2>Submitted and pending review.</h2>
+          <p class="eyebrow" data-i18n="install.eyebrow">Chrome Web Store</p>
+          <h2 data-i18n="install.title">Submitted and pending review.</h2>
         </div>
         <div>
-          <p>
+          <p data-i18n-html="install.body">
             LazyDiff has been submitted to the Chrome Web Store. Until review is complete, the extension can be loaded
             unpacked from the generated <code>extension/</code> directory.
           </p>
           <p>
-            Status: <strong>Pending review</strong><br />
-            Extension ID: <code>bnoohgdhbhegnpdfhneciipfgmmjejhb</code>
+            <span data-i18n="install.statusLabel">Status</span>:
+            <strong data-i18n="install.status">Pending review</strong><br />
+            <span data-i18n="install.idLabel">Extension ID</span>:
+            <code data-extension-id>bnoohgdhbhegnpdfhneciipfgmmjejhb</code>
           </p>
         </div>
       </section>
@@ -145,8 +165,9 @@
 
     <footer>
       <span>lazydiff</span>
-      <a href="privacy/">Privacy</a>
-      <a href="https://github.com/Ashok314/lazydiff">GitHub</a>
+      <a href="privacy/" data-i18n="nav.privacy">Privacy</a>
+      <a data-site-url="website" href="https://ashok314.github.io/lazydiff/" data-i18n="nav.website">Website</a>
+      <a data-site-url="github" href="https://github.com/Ashok314/lazydiff" data-i18n="nav.github">GitHub</a>
     </footer>
   </body>
 </html>

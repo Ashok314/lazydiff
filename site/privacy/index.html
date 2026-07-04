@@ -7,48 +7,58 @@
     <title>Privacy - lazydiff</title>
     <link rel="icon" href="../assets/icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../styles.css" />
+    <script src="../app.js" defer></script>
   </head>
-  <body>
+  <body data-page="privacy">
     <header class="site-header">
       <a class="brand" href="../" aria-label="lazydiff home">
         <img src="../assets/icon.svg" alt="" />
         <span>lazydiff</span>
       </a>
-      <nav>
-        <a href="../">Home</a>
-        <a href="https://github.com/Ashok314/lazydiff">GitHub</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="../" data-i18n="policy.home">Home</a>
+        <a data-site-url="website" href="https://ashok314.github.io/lazydiff/" data-i18n="nav.website">Website</a>
+        <a data-site-url="github" href="https://github.com/Ashok314/lazydiff" data-i18n="nav.github">GitHub</a>
       </nav>
+      <div class="site-controls" aria-label="Site preferences">
+        <button type="button" data-theme-toggle aria-label="Toggle color theme">Dark</button>
+        <button type="button" data-lang-toggle aria-label="Switch language">JA</button>
+      </div>
     </header>
 
     <main>
       <section class="section">
         <div>
-          <p class="eyebrow">Privacy policy</p>
-          <h1>LazyDiff collects nothing.</h1>
-          <p class="lede">No analytics, no tracking, no servers, and no network requests from the extension.</p>
-          <p>Effective date: July 4, 2026</p>
+          <p class="eyebrow" data-i18n="policy.eyebrow">Privacy policy</p>
+          <h1 data-i18n="policy.heading">LazyDiff collects nothing.</h1>
+          <p class="lede" data-i18n="policy.lede">
+            No analytics, no tracking, no servers, and no network requests from the extension.
+          </p>
+          <p data-i18n="policy.effective">Effective date: July 4, 2026</p>
         </div>
       </section>
 
       <section class="section split">
-        <h2>Data handling</h2>
+        <h2 data-i18n="policy.handlingTitle">Data handling</h2>
         <div>
-          <p>LazyDiff runs locally in your browser on GitHub pull request pages.</p>
-          <p>No source code, file paths, filter text, or pull request content is sent anywhere.</p>
+          <p data-i18n="policy.handlingOne">LazyDiff runs locally in your browser on GitHub pull request pages.</p>
+          <p data-i18n="policy.handlingTwo">
+            No source code, file paths, filter text, or pull request content is sent anywhere.
+          </p>
         </div>
       </section>
 
       <section class="section split">
-        <h2>Local storage</h2>
-        <p>
+        <h2 data-i18n="policy.storageTitle">Local storage</h2>
+        <p data-i18n-html="policy.storageBody">
           LazyDiff stores filter text in <code>chrome.storage.local</code> so filters can persist between page reloads.
           This data stays in your browser.
         </p>
       </section>
 
       <section class="section split">
-        <h2>Data not collected</h2>
-        <p>
+        <h2 data-i18n="policy.notCollectedTitle">Data not collected</h2>
+        <p data-i18n="policy.notCollectedBody">
           LazyDiff does not collect personally identifiable information, authentication information, financial
           information, health information, personal communications, location, browsing history, website content, or user
           activity.
@@ -56,16 +66,16 @@
       </section>
 
       <section class="section split">
-        <h2>Permissions</h2>
-        <p>
+        <h2 data-i18n="policy.permissionsTitle">Permissions</h2>
+        <p data-i18n-html="policy.permissionsBody">
           LazyDiff requests only <code>storage</code>, used to save filter text locally. The extension runs only on
           GitHub pull request pages matched by the manifest.
         </p>
       </section>
 
       <section class="section split">
-        <h2>Contact</h2>
-        <p>
+        <h2 data-i18n="policy.contactTitle">Contact</h2>
+        <p data-i18n-html="policy.contactBody">
           Questions or privacy requests can be opened on
           <a href="https://github.com/Ashok314/lazydiff/issues">GitHub Issues</a>.
         </p>
@@ -74,8 +84,9 @@
 
     <footer>
       <span>lazydiff</span>
-      <a href="../">Home</a>
-      <a href="https://github.com/Ashok314/lazydiff">GitHub</a>
+      <a href="../" data-i18n="policy.home">Home</a>
+      <a data-site-url="website" href="https://ashok314.github.io/lazydiff/" data-i18n="nav.website">Website</a>
+      <a data-site-url="github" href="https://github.com/Ashok314/lazydiff" data-i18n="nav.github">GitHub</a>
     </footer>
   </body>
 </html>

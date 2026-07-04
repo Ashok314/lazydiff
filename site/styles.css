@@ -1,12 +1,29 @@
 :root {
   --bg: #f6f8fa;
+  --button-bg: #ffffff;
   --danger: #cf222e;
   --fg: #24292f;
   --muted: #57606a;
   --muted-line: #8c959f;
   --success: #2da44e;
   --border: #d0d7de;
+  --header-bg: rgba(246, 248, 250, 0.86);
   --panel: #ffffff;
+  --shadow: rgba(36, 41, 47, 0.12);
+}
+
+:root[data-theme="dark"] {
+  --bg: #0d1117;
+  --button-bg: #161b22;
+  --danger: #ff7b72;
+  --fg: #f0f6fc;
+  --muted: #8b949e;
+  --muted-line: #6e7681;
+  --success: #3fb950;
+  --border: #30363d;
+  --header-bg: rgba(13, 17, 23, 0.9);
+  --panel: #161b22;
+  --shadow: rgba(1, 4, 9, 0.35);
 }
 
 * {
@@ -38,6 +55,14 @@ footer {
   padding: 20px;
 }
 
+.site-header {
+  background: var(--header-bg);
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
 .brand {
   align-items: center;
   display: inline-flex;
@@ -51,16 +76,56 @@ footer {
   width: 34px;
 }
 
-nav,
+.site-nav,
 footer {
   color: var(--muted);
   gap: 18px;
 }
 
-nav a,
+.site-nav {
+  align-items: center;
+  background: var(--button-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 6px;
+}
+
+.site-nav a,
 footer a {
   font-size: 14px;
+  line-height: 1;
   text-decoration: none;
+}
+
+.site-nav a {
+  border-radius: 6px;
+  padding: 8px 9px;
+}
+
+.site-nav a:hover,
+.site-controls button:hover,
+.button:hover {
+  border-color: var(--muted-line);
+}
+
+.site-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.site-controls button {
+  background: var(--button-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--fg);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 54px;
+  padding: 8px 10px;
 }
 
 main {
@@ -118,8 +183,10 @@ h2 {
 }
 
 .button {
+  background: var(--button-bg);
   border: 1px solid var(--border);
   border-radius: 8px;
+  color: var(--fg);
   font-weight: 700;
   padding: 10px 14px;
   text-decoration: none;
@@ -135,7 +202,7 @@ h2 {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 24px 60px rgba(36, 41, 47, 0.12);
+  box-shadow: 0 24px 60px var(--shadow);
   display: grid;
   gap: 12px;
   padding: 16px;
@@ -255,11 +322,17 @@ code {
   grid-column: span 2;
 }
 
+.screenshot.compare img {
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: top left;
+}
+
 .screenshot img {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: 0 18px 42px rgba(36, 41, 47, 0.1);
+  box-shadow: 0 18px 42px var(--shadow);
   display: block;
   height: auto;
   width: 100%;
@@ -308,12 +381,15 @@ footer span {
   .site-header {
     align-items: flex-start;
     gap: 14px;
+    position: static;
   }
 
-  nav {
+  .site-nav {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-end;
+    justify-content: flex-start;
+    order: 3;
+    width: 100%;
   }
 
   .hero,
@@ -351,7 +427,7 @@ footer span {
     padding-right: 14px;
   }
 
-  nav {
+  .site-nav {
     gap: 10px;
   }
 

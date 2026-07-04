@@ -2,36 +2,42 @@
 
 Lazy enough to review.
 
-Negative filters for GitHub PR files, plus diff-size counts after filtering.
+LazyDiff is a Chrome extension for GitHub pull request review. It hides PR files with negative filters and shows the diff size left after filtering.
 
-LazyDiff adds the missing "not this path" workflow to GitHub PR review. Hide unwanted files and folders such as tests, generated assets, snapshots, or specs, then see the additions/deletions left in the filtered review.
+## What it does
 
-## Why
+- Adds a LazyDiff filter bar to GitHub PR changed-files pages.
+- Hides matching files from the visible diff.
+- Shows visible and hidden file counts.
+- Shows additions/deletions left after filtering.
+- Stores filter text locally in Chrome.
+- Makes no network requests.
 
-GitHub's PR UI can filter by file name and extension, but it does not give reviewers a simple negative filter or a filtered diff-size count. LazyDiff is for reducing a large PR into the part you actually intend to review.
+## Status
 
-## Brand
+Chrome Web Store status: pending review.
 
-- Tagline: `Lazy enough to review.`
-- Logo source: `assets/logo.svg`
-- Icon source: `assets/icon.svg`
-- Extension icons: `assets/icons/`
+- Website: <https://ashok314.github.io/lazydiff/>
+- Privacy policy: <https://ashok314.github.io/lazydiff/privacy/>
+- Extension ID: `bnoohgdhbhegnpdfhneciipfgmmjejhb`
+
+Until the store listing is approved, load the generated `extension/` directory as an unpacked Chrome extension.
 
 ## Filter Grammar
 
-LazyDiff uses a small custom grammar. It is intentionally gitignore-like, but it is not `.gitignore` compatible.
+LazyDiff uses a small custom grammar. It is gitignore-like, but not `.gitignore` compatible.
 
-| Input             | Meaning                             |
-| ----------------- | ----------------------------------- |
-| `apps`            | Show only matching `apps` paths.    |
-| `!apps`           | Hide matching `apps` paths.         |
-| `-apps`           | Same as `!apps`.                    |
-| `!/apps`          | Hide only root `apps` paths.        |
-| `*.spec.ts`       | Match spec files at any depth.      |
-| `!*.spec.ts`      | Hide spec files at any depth.       |
-| `.webp`           | Match files ending in `.webp`.      |
-| `apps !*.spec.ts` | Show `apps`, except spec files.     |
-| `"docs pages"`    | Quote patterns that contain spaces. |
+| Input             | Meaning                         |
+| ----------------- | ------------------------------- |
+| `apps`            | Show matching `apps` paths.     |
+| `!apps`           | Hide matching `apps` paths.     |
+| `-apps`           | Same as `!apps`.                |
+| `!/apps`          | Hide only root `apps` paths.    |
+| `*.spec.ts`       | Match spec files at any depth.  |
+| `!*.spec.ts`      | Hide spec files at any depth.   |
+| `.webp`           | Match files ending in `.webp`.  |
+| `apps !*.spec.ts` | Show `apps`, except spec files. |
+| `"docs pages"`    | Quote patterns that use spaces. |
 
 Rules:
 
@@ -42,41 +48,12 @@ Rules:
 - `/pattern` is root-anchored.
 - Bare words like `apps` match a folder named `apps`, nested folders named `apps`, and file extensions such as `.apps`.
 
-## Privacy
-
-LazyDiff runs entirely in the browser on GitHub PR pages.
-
-- No network requests.
-- No analytics.
-- No code is sent anywhere.
-- Filter text is stored only in `chrome.storage.local`.
-
-See `PRIVACY.md` for the release privacy policy.
-
-## Known Limitation
-
-GitHub's file navigation can still show empty folder rows after filtering. LazyDiff prioritizes hiding the actual diff blocks and showing accurate visible additions/deletions. Smarter folder pruning is tracked for a post-release update because GitHub's navigation tree changes dynamically when folders are expanded.
-
-## Local Development
-
-```sh
-npm test
-npm run package:extension
-npm run zip:extension
-```
-
-Then load the generated `extension/` directory as an unpacked Chrome extension.
-
-`npm run zip:extension` creates `release/lazydiff-extension.zip` for manual Chrome Web Store upload.
-
-## Use Locally From Source
-
-You can clone the repository and run LazyDiff locally without installing from the Chrome Web Store.
+## Install Locally
 
 ```sh
 git clone https://github.com/Ashok314/lazydiff.git
 cd lazydiff
-npm test
+npm ci
 npm run package:extension
 ```
 
@@ -87,50 +64,49 @@ In Chrome:
 3. Click `Load unpacked`
 4. Select the generated `extension/` directory
 
+## Development
+
+```sh
+npm test
+npm run package:extension
+npm run zip:extension
+npm run format:check
+```
+
+`npm run zip:extension` creates `release/lazydiff-extension-v<version>.zip`.
+
 ## Release Automation
 
-GitHub Actions runs tests and packages the extension on pushes and pull requests.
+GitHub Actions packages the extension on pushes to `main`, version tags, and manual dispatch.
 
 - Workflow: `.github/workflows/extension.yml`
-- Artifact: `lazydiff-extension.zip`
+- Artifact: `release/lazydiff-extension-v*.zip`
 - Tag releases: pushing a tag like `v0.1.0` attaches the zip to a GitHub Release.
 
-Chrome Web Store publishing can be automated later after the developer account and API credentials are ready. Until then, upload `release/lazydiff-extension.zip` manually.
+The static website deploys to GitHub Pages from `site/` on pushes to `main`.
 
-## Website
+## Privacy
 
-The static landing page lives in `site/`.
+LazyDiff runs locally in the browser on GitHub PR pages.
 
-For GitHub Pages:
+- No network requests.
+- No analytics.
+- No source code is sent anywhere.
+- No PR file paths are sent anywhere.
+- Filter text is stored only in `chrome.storage.local`.
 
-- Source directory: `site/`
-- Site URL: `https://ashok314.github.io/lazydiff/`
-- Privacy URL: `https://ashok314.github.io/lazydiff/privacy`
+See `PRIVACY.md` and the published privacy page for the release policy.
 
-## Release Checklist
+## Brand Assets
 
-- License is MIT.
-- Publish the privacy policy URL.
-- Keep `PRIVACY.md` and `SECURITY.md` updated.
-- Export store-ready PNG icons from `assets/icon.svg`.
-- Add screenshots and a short demo GIF.
-- Recheck selectors against GitHub's current PR layout.
-- Keep console debug disabled for release builds.
-- Run `npm test` and `npm run package:extension`.
-- Manually verify filtering, file navigation hiding, and visible diff counts on at least one large PR.
-- Keep smart navigation folder pruning as a post-release TODO.
+- Tagline: `Lazy enough to review.`
+- Logo: `assets/logo.svg`
+- Icon: `assets/icon.svg`
+- Extension icons: `assets/icons/`
 
-## Contributing
+## Known Limitation
 
-Bug reports and feature ideas are welcome.
-
-- Report bugs with the GitHub issue template.
-- Include the filter input, browser, GitHub PR URL shape, and screenshots when possible.
-- GitHub changes its PR layout over time, so layout-related reports are especially useful.
-
-Maintained by [Ashok](https://ashok314.github.io/).
-
-Support the Project: [☕ Buy me a coffee](https://buymeacoffee.com/ashok314)
+GitHub's file navigation can still show empty folder rows after filtering. LazyDiff prioritizes hiding the actual diff blocks and showing accurate visible additions/deletions. Smarter folder pruning is tracked for a post-release update because GitHub's navigation tree changes dynamically when folders are expanded.
 
 ## Debugging
 
@@ -145,3 +121,15 @@ To turn it off:
 ```js
 localStorage.removeItem("lazydiffDebug");
 ```
+
+## Contributing
+
+Bug reports and feature ideas are welcome.
+
+- Report bugs with the GitHub issue template.
+- Include the filter input, browser, GitHub PR URL shape, and screenshots when possible.
+- GitHub changes its PR layout over time, so layout-related reports are especially useful.
+
+Maintained by [Ashok](https://ashok314.github.io/).
+
+Support the project: [Buy me a coffee](https://buymeacoffee.com/ashok314)
