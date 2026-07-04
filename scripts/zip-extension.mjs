@@ -1,10 +1,17 @@
-import { mkdir, rm } from "node:fs/promises";
+import { mkdir, readFile, readdir, rm } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 
 const releaseDir = new URL("../release/", import.meta.url);
-const zipFile = new URL("./lazydiff-extension.zip", releaseDir);
+const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
+const zipFileName = `${packageJson.name}-extension-v${packageJson.version}.zip`;
+const zipFile = new URL(`./${zipFileName}`, releaseDir);
 
 await mkdir(releaseDir, { recursive: true });
+for (const file of await readdir(releaseDir)) {
+  if (/^lazydiff-extension.*\.zip$/.test(file)) {
+    await rm(new URL(`./${file}`, releaseDir), { force: true });
+  }
+}
 await rm(zipFile, { force: true });
 
 const result = spawnSync("zip", ["-r", zipFile.pathname, "."], {
