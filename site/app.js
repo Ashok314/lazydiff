@@ -1,6 +1,7 @@
 const SITE = {
   extensionId: "bnoohgdhbhegnpdfhneciipfgmmjejhb",
   links: {
+    chromeWebStore: "https://chromewebstore.google.com/detail/bnoohgdhbhegnpdfhneciipfgmmjejhb",
     github: "https://github.com/Ashok314/lazydiff",
     website: "https://ashok314.github.io/lazydiff/"
   }
@@ -21,7 +22,7 @@ const I18N = {
       lede: "Hide tests, generated files, specs, or any path you do not want to review, then see the diff size that remains."
     },
     actions: {
-      install: "Install soon",
+      install: "Install from Chrome Web Store",
       source: "View source"
     },
     demo: {
@@ -50,10 +51,10 @@ const I18N = {
     },
     install: {
       eyebrow: "Chrome Web Store",
-      title: "Submitted and pending review.",
-      body: "LazyDiff has been submitted to the Chrome Web Store. Until review is complete, the extension can be loaded unpacked from the generated <code>extension/</code> directory.",
+      title: "Published on the Chrome Web Store.",
+      body: "LazyDiff is available on the Chrome Web Store. Install it from the listing, or load the generated <code>extension/</code> directory for local development.",
       statusLabel: "Status",
-      status: "Pending review",
+      status: "Published",
       idLabel: "Extension ID"
     },
     controls: {
@@ -99,7 +100,7 @@ const I18N = {
       lede: "テスト、生成ファイル、spec、見なくてよいパスを隠して、残りの差分サイズだけを確認できます。"
     },
     actions: {
-      install: "公開待ち",
+      install: "Chrome Web Storeでインストール",
       source: "ソースを見る"
     },
     demo: {
@@ -128,10 +129,10 @@ const I18N = {
     },
     install: {
       eyebrow: "Chrome Web Store",
-      title: "提出済み、レビュー待ちです。",
-      body: "LazyDiffはChrome Web Storeへ提出済みです。レビュー完了までは、生成された<code>extension/</code>ディレクトリからunpacked拡張として読み込めます。",
+      title: "Chrome Web Storeで公開されました。",
+      body: "LazyDiffはChrome Web Storeで公開されています。ストアページからインストールできます。ローカル開発では、生成された<code>extension/</code>ディレクトリからunpacked拡張として読み込めます。",
       statusLabel: "ステータス",
-      status: "レビュー待ち",
+      status: "公開中",
       idLabel: "拡張機能ID"
     },
     controls: {

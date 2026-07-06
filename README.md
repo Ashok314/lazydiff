@@ -15,13 +15,14 @@ LazyDiff is a Chrome extension for GitHub pull request review. It hides PR files
 
 ## Status
 
-Chrome Web Store status: pending review.
+Chrome Web Store status: published.
 
 - Website: <https://ashok314.github.io/lazydiff/>
+- Chrome Web Store: <https://chromewebstore.google.com/detail/bnoohgdhbhegnpdfhneciipfgmmjejhb>
 - Privacy policy: <https://ashok314.github.io/lazydiff/privacy/>
 - Extension ID: `bnoohgdhbhegnpdfhneciipfgmmjejhb`
 
-Until the store listing is approved, load the generated `extension/` directory as an unpacked Chrome extension.
+Install from the Chrome Web Store, or load the generated `extension/` directory as an unpacked Chrome extension for local development.
 
 ## Filter Grammar
 

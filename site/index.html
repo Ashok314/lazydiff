@@ -41,7 +41,13 @@
             remains.
           </p>
           <div class="actions">
-            <a class="button primary" href="#install" data-i18n="actions.install">Install soon</a>
+            <a
+              class="button primary"
+              data-site-url="chromeWebStore"
+              href="https://chromewebstore.google.com/detail/bnoohgdhbhegnpdfhneciipfgmmjejhb"
+              data-i18n="actions.install"
+              >Install from Chrome Web Store</a
+            >
             <a
               class="button"
               data-site-url="github"
@@ -146,16 +152,24 @@
       <section class="section split" id="install">
         <div>
           <p class="eyebrow" data-i18n="install.eyebrow">Chrome Web Store</p>
-          <h2 data-i18n="install.title">Submitted and pending review.</h2>
+          <h2 data-i18n="install.title">Published on the Chrome Web Store.</h2>
         </div>
         <div>
           <p data-i18n-html="install.body">
-            LazyDiff has been submitted to the Chrome Web Store. Until review is complete, the extension can be loaded
-            unpacked from the generated <code>extension/</code> directory.
+            LazyDiff is available on the Chrome Web Store. Install it from the listing, or load the generated
+            <code>extension/</code> directory for local development.
           </p>
           <p>
-            <span data-i18n="install.statusLabel">Status</span>:
-            <strong data-i18n="install.status">Pending review</strong><br />
+            <a
+              data-site-url="chromeWebStore"
+              href="https://chromewebstore.google.com/detail/bnoohgdhbhegnpdfhneciipfgmmjejhb"
+              data-i18n="actions.install"
+              >Install from Chrome Web Store</a
+            >
+          </p>
+          <p>
+            <span data-i18n="install.statusLabel">Status</span>: <strong data-i18n="install.status">Published</strong
+            ><br />
             <span data-i18n="install.idLabel">Extension ID</span>:
             <code data-extension-id>bnoohgdhbhegnpdfhneciipfgmmjejhb</code>
           </p>
