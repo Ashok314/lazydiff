@@ -1,5 +1,9 @@
 const SITE = {
   extensionId: "bnoohgdhbhegnpdfhneciipfgmmjejhb",
+  videos: {
+    en: "assets/video/lazydiff-promo.mp4",
+    ja: "assets/video/lazydiff-promo-ja.mp4"
+  },
   links: {
     chromeWebStore: "https://chromewebstore.google.com/detail/bnoohgdhbhegnpdfhneciipfgmmjejhb",
     github: "https://github.com/Ashok314/lazydiff",
@@ -10,6 +14,7 @@ const SITE = {
 const I18N = {
   en: {
     nav: {
+      video: "Video",
       screenshots: "Screenshots",
       syntax: "Syntax",
       privacy: "Privacy",
@@ -35,6 +40,11 @@ const I18N = {
       after: "After: hide unwanted files and see the remaining diff size.",
       closeup: "Closeup: LazyDiff count and filter bar on the files changed page.",
       popup: "Info-only popup. Filtering happens on the PR page."
+    },
+    video: {
+      eyebrow: "Quick demo",
+      title: "Watch LazyDiff clean up a pull request.",
+      note: "Real GitHub PR frames, local filtering, and the remaining diff count."
     },
     syntax: {
       eyebrow: "Custom syntax",
@@ -88,6 +98,7 @@ const I18N = {
   },
   ja: {
     nav: {
+      video: "動画",
       screenshots: "スクリーンショット",
       syntax: "構文",
       privacy: "プライバシー",
@@ -113,6 +124,11 @@ const I18N = {
       after: "After: 不要なファイルを隠し、残りの差分サイズを表示します。",
       closeup: "Closeup: Files changedページ上のLazyDiffカウントとフィルターバー。",
       popup: "ポップアップは情報表示用です。フィルター操作はPRページ上で行います。"
+    },
+    video: {
+      eyebrow: "クイックデモ",
+      title: "LazyDiffでPRを見やすくする。",
+      note: "実際のGitHub PR画面、ローカルフィルター、残りの差分カウントを確認できます。"
     },
     syntax: {
       eyebrow: "カスタム構文",
@@ -212,6 +228,13 @@ function render() {
   const langToggle = document.querySelector("[data-lang-toggle]");
   if (langToggle) {
     langToggle.textContent = read("controls.lang");
+  }
+
+  const promoVideo = document.querySelector("[data-promo-video]");
+  const videoSrc = SITE.videos[state.lang] || SITE.videos.en;
+  if (promoVideo && !promoVideo.src.endsWith(videoSrc)) {
+    promoVideo.src = videoSrc;
+    promoVideo.load();
   }
 }
 

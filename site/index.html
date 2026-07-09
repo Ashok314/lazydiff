@@ -19,6 +19,7 @@
         <span>lazydiff</span>
       </a>
       <nav class="site-nav" aria-label="Main navigation">
+        <a href="#video" data-i18n="nav.video">Video</a>
         <a href="#screenshots" data-i18n="nav.screenshots">Screenshots</a>
         <a href="#syntax" data-i18n="nav.syntax">Syntax</a>
         <a href="#privacy" data-i18n="nav.privacy">Privacy</a>
@@ -79,6 +80,31 @@
             <span class="hide">tests/helpers/mock.ts</span>
             <span class="show">apps/api/review.ts</span>
           </div>
+        </div>
+      </section>
+
+      <section class="section video-section" id="video">
+        <div>
+          <p class="eyebrow" data-i18n="video.eyebrow">Quick demo</p>
+          <h2 data-i18n="video.title">Watch LazyDiff clean up a pull request.</h2>
+        </div>
+        <div class="video-frame">
+          <video
+            class="promo-video"
+            controls
+            data-promo-video
+            playsinline
+            preload="metadata"
+            poster="assets/video/lazydiff-promo-poster.jpg"
+            src="assets/video/lazydiff-promo.mp4"
+          ></video>
+          <div class="video-brand" aria-hidden="true">
+            <span>lazydiff</span>
+            <span>Lazy enough to review.</span>
+          </div>
+          <p class="video-note" data-i18n="video.note">
+            Real GitHub PR frames, local filtering, and the remaining diff count.
+          </p>
         </div>
       </section>
 
