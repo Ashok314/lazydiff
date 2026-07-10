@@ -7,7 +7,8 @@ const SITE = {
   links: {
     chromeWebStore: "https://chromewebstore.google.com/detail/bnoohgdhbhegnpdfhneciipfgmmjejhb",
     github: "https://github.com/Ashok314/lazydiff",
-    website: "https://ashok314.github.io/lazydiff/"
+    website: "https://ashok314.github.io/lazydiff/",
+    youtubePlaylist: "https://www.youtube.com/playlist?list=PLUWPwCjmadNM"
   }
 };
 
@@ -19,7 +20,8 @@ const I18N = {
       syntax: "Syntax",
       privacy: "Privacy",
       website: "Website",
-      github: "GitHub"
+      github: "GitHub",
+      youtube: "YouTube"
     },
     hero: {
       eyebrow: "Negative filters for GitHub PRs",
@@ -44,7 +46,8 @@ const I18N = {
     video: {
       eyebrow: "Quick demo",
       title: "Watch LazyDiff clean up a pull request.",
-      note: "Real GitHub PR frames, local filtering, and the remaining diff count."
+      note: "Real GitHub PR frames, local filtering, and the remaining diff count.",
+      playlist: "Watch the short demo playlist"
     },
     syntax: {
       eyebrow: "Custom syntax",
@@ -103,7 +106,8 @@ const I18N = {
       syntax: "構文",
       privacy: "プライバシー",
       website: "Webサイト",
-      github: "GitHub"
+      github: "GitHub",
+      youtube: "YouTube"
     },
     hero: {
       eyebrow: "GitHub PR向けのネガティブフィルター",
@@ -128,7 +132,8 @@ const I18N = {
     video: {
       eyebrow: "クイックデモ",
       title: "LazyDiffでPRを見やすくする。",
-      note: "実際のGitHub PR画面、ローカルフィルター、残りの差分カウントを確認できます。"
+      note: "実際のGitHub PR画面、ローカルフィルター、残りの差分カウントを確認できます。",
+      playlist: "短いデモのプレイリストを見る"
     },
     syntax: {
       eyebrow: "カスタム構文",
