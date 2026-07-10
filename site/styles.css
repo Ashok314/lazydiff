@@ -104,6 +104,31 @@ footer a {
   padding: 8px 9px;
 }
 
+.icon-link {
+  align-items: center;
+  display: inline-flex;
+  gap: 7px;
+}
+
+.youtube-icon {
+  background: #ff0033;
+  border-radius: 5px;
+  display: inline-block;
+  height: 16px;
+  position: relative;
+  width: 22px;
+}
+
+.youtube-icon::after {
+  border-bottom: 4px solid transparent;
+  border-left: 7px solid white;
+  border-top: 4px solid transparent;
+  content: "";
+  left: 8px;
+  position: absolute;
+  top: 4px;
+}
+
 .site-nav a:hover,
 .site-controls button:hover,
 .button:hover {
@@ -352,6 +377,24 @@ code {
   color: var(--muted);
   font-size: 14px;
   margin: 10px 0 0 5px;
+}
+
+.playlist-link {
+  align-items: center;
+  background: var(--button-bg);
+  border-top: 1px solid var(--border);
+  color: var(--fg);
+  display: flex;
+  font-size: 14px;
+  font-weight: 800;
+  gap: 9px;
+  justify-content: center;
+  padding: 12px 14px;
+  text-decoration: none;
+}
+
+.playlist-link:hover {
+  color: var(--success);
 }
 
 .screenshots {
