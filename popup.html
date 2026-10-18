@@ -3,6 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="popup.css" />
+    <script src="dist/core.js" defer></script>
+    <script src="dist/storage.js" defer></script>
+    <script src="dist/locales.js" defer></script>
+    <script src="dist/i18n.js" defer></script>
+    <script src="dist/popup.js" defer></script>
   </head>
   <body>
     <main>
@@ -10,39 +15,102 @@
         <img class="logo" src="icons/icon-48.png" alt="" />
         <div>
           <h1>lazydiff</h1>
-          <p class="tagline">Lazy enough to review.</p>
+          <p class="tagline" data-i18n="popupTagline"></p>
         </div>
+        <button
+          id="lazydiff-popup-info"
+          class="info-button"
+          type="button"
+          data-i18n-aria-label="helpTitle"
+          data-i18n-title="helpTitle"
+          aria-haspopup="dialog"
+          aria-controls="lazydiff-help"
+          aria-expanded="false"
+        >
+          i
+        </button>
       </header>
-
-      <section class="panel">
-        <p class="summary">Hide unwanted PR files with negative filters and see the diff size left to review.</p>
-        <div class="example">
-          <span>try</span>
-          <code>!*.test.ts</code>
+      <section class="panel" data-i18n-aria-label="fileFilters">
+        <label for="lazydiff-popup-input" data-i18n="fileFilters"></label>
+        <div class="filter-controls">
+          <input
+            id="lazydiff-popup-input"
+            type="text"
+            data-i18n-placeholder="filterPlaceholder"
+            autocomplete="off"
+            spellcheck="false"
+            aria-describedby="filter-help"
+            disabled
+          />
+          <button id="lazydiff-popup-clear" type="button" data-i18n="clear" disabled></button>
         </div>
+        <p id="lazydiff-popup-layout-warning" class="layout-warning" role="status" hidden>
+          <span data-i18n="layoutChanged"></span>
+          <a
+            href="https://github.com/Ashok314/lazydiff/issues/new"
+            target="_blank"
+            rel="noreferrer"
+            data-i18n="reportContribute"
+          ></a>
+        </p>
       </section>
-
-      <div class="features" aria-label="Core features">
+      <div class="features" data-i18n-aria-label="reviewCounts">
         <div>
-          <strong>Negative filters</strong>
-          <span>Use <code>!</code> to hide paths.</span>
+          <strong data-i18n="files"></strong>
+          <p id="lazydiff-popup-status" role="status" data-i18n="connecting"></p>
         </div>
         <div>
-          <strong>Filtered count</strong>
-          <span>See additions/deletions left.</span>
+          <strong data-i18n="diff"></strong>
+          <p id="lazydiff-popup-counts" hidden>
+            <span id="lazydiff-popup-additions" class="diff-additions"></span>
+            <span id="lazydiff-popup-deletions" class="diff-deletions"></span>
+          </p>
+          <p class="no-count">—</p>
         </div>
       </div>
-
       <footer>
         <div>
-          <span>No network</span>
-          <span>Local storage only</span>
+          <span data-i18n="noNetwork"></span>
+          <span data-i18n="localStorageOnly"></span>
         </div>
-        <nav aria-label="Links">
-          <a href="https://ashok314.github.io/lazydiff/" target="_blank" rel="noreferrer">Website</a>
-          <a href="https://ashok314.github.io/lazydiff/privacy/" target="_blank" rel="noreferrer">Privacy</a>
+        <nav data-i18n-aria-label="links">
+          <a href="https://ashok314.github.io/lazydiff/" target="_blank" rel="noreferrer" data-i18n="website"></a>
+          <a
+            href="https://ashok314.github.io/lazydiff/privacy/"
+            target="_blank"
+            rel="noreferrer"
+            data-i18n="privacy"
+          ></a>
         </nav>
       </footer>
     </main>
+    <dialog id="lazydiff-help" aria-labelledby="lazydiff-help-title">
+      <div class="help-heading">
+        <h2 id="lazydiff-help-title" data-i18n="helpTitle"></h2>
+        <button id="lazydiff-help-close" type="button" data-i18n="close" autofocus></button>
+      </div>
+      <div class="help-body">
+        <p id="filter-help" data-i18n="helpPatterns"></p>
+        <dl class="help-examples">
+          <div>
+            <dt data-i18n="helpShow"></dt>
+            <dd><code data-i18n="helpShowExample"></code></dd>
+          </div>
+          <div>
+            <dt data-i18n="helpHide"></dt>
+            <dd><code data-i18n="filterPlaceholder"></code></dd>
+          </div>
+        </dl>
+        <p class="help-note" data-i18n="helpShared"></p>
+      </div>
+      <div class="help-language">
+        <label for="lazydiff-popup-language" data-i18n="languageLabel"></label>
+        <select id="lazydiff-popup-language" disabled>
+          <option value="auto" data-i18n="languageAuto"></option>
+          <option value="en" data-i18n="languageEnglish"></option>
+          <option value="ja" data-i18n="languageJapanese"></option>
+        </select>
+      </div>
+    </dialog>
   </body>
 </html>

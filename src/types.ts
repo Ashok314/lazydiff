@@ -1,4 +1,11 @@
 declare namespace LazyDiff {
+  type Language = "en" | "ja";
+  type LanguagePreference = "auto" | Language;
+
+  interface LocaleMessage {
+    message: string;
+    placeholders?: Record<string, { content: string }>;
+  }
   type PatternMode = "include" | "exclude";
 
   interface PatternToken {
@@ -35,6 +42,15 @@ declare namespace LazyDiff {
     savedExcludePatterns: string[];
     filterInputValue: string;
   }
+
+  interface PageState {
+    type: "lazydiff.state";
+    filterInput: string;
+    isFilesPage: boolean;
+    barInjected: boolean;
+    layoutRecognized: boolean;
+    totals: ReviewTotals | null;
+  }
 }
 
 interface ChromeStorageArea {
@@ -48,6 +64,9 @@ interface ChromeStorageChange {
 }
 
 interface ChromeExtensionApi {
+  i18n?: {
+    getMessage(key: string, substitutions?: string[]): string;
+  };
   storage?: {
     local?: ChromeStorageArea;
     onChanged?: {
@@ -55,8 +74,15 @@ interface ChromeExtensionApi {
     };
   };
   runtime?: {
+    sendMessage?(message: unknown): Promise<unknown>;
     onMessage?: {
-      addListener(callback: (message: unknown) => void): void;
+      addListener(
+        callback: (
+          message: unknown,
+          sender: { tab?: { id?: number } },
+          sendResponse: (response: unknown) => void
+        ) => void
+      ): void;
     };
   };
   tabs?: {
@@ -66,3 +92,4 @@ interface ChromeExtensionApi {
 }
 
 declare const chrome: ChromeExtensionApi | undefined;
+declare const LAZYDIFF_LOCALES: Record<LazyDiff.Language, Record<string, LazyDiff.LocaleMessage>>;

@@ -29,7 +29,7 @@ test("keeps include tokens separate from lazydiff exclude tokens", () => {
     "src/components",
     "docs pages"
   ]);
-  assert.equal(core.serializeIncludePatterns(["src/components", " docs pages "]), "src/components docs pages");
+  assert.equal(core.serializeIncludePatterns(["src/components", " docs pages "]), 'src/components, "docs pages"');
 });
 
 test("normalizes patterns without choosing defaults for users", () => {
@@ -130,4 +130,39 @@ test("calculates visible and hidden review size after include and exclude filter
     hiddenDeletions: 45,
     hiddenLines: 175
   });
+});
+
+test("accepts comma-separated patterns alongside legacy whitespace", () => {
+  const core = loadCore();
+  const filter = core.parseFilterExpression(" , *.test.ts,*.spec.ts, !src/ignored/** ,,");
+
+  assert.deepEqual(plain(filter), {
+    includePatterns: ["*.test.ts", "*.spec.ts"],
+    excludePatterns: ["src/ignored/**"]
+  });
+  assert.equal(core.shouldShowPath("src/app.test.ts", filter), true);
+  assert.equal(core.shouldShowPath("src/app.spec.ts", filter), true);
+  assert.equal(core.shouldShowPath("src/ignored/app.test.ts", filter), false);
+  assert.equal(core.shouldShowPath("src/app.ts", filter), false);
+  assert.deepEqual(plain(core.extractExcludePatterns("!*.test.ts, !*.spec.ts !*.snap")), [
+    "*.test.ts",
+    "*.spec.ts",
+    "*.snap"
+  ]);
+});
+
+test("preserves quoted spaces and commas, including after exclude prefixes", () => {
+  const core = loadCore();
+  assert.deepEqual(plain(core.parseFilterInput(`"docs pages/**", !'docs/notes,old.md', -"test fixtures/**"`)), [
+    { mode: "include", pattern: "docs pages/**" },
+    { mode: "exclude", pattern: "docs/notes,old.md" },
+    { mode: "exclude", pattern: "test fixtures/**" }
+  ]);
+});
+
+test("serialized patterns round-trip through the filter input", () => {
+  const core = loadCore();
+  const patterns = ["docs pages/**", "docs/notes,old.md", "docs/a\"b'c.md", "!important.ts"];
+  assert.deepEqual(plain(core.extractIncludePatterns(core.serializeIncludePatterns(patterns))), patterns);
+  assert.deepEqual(plain(core.extractExcludePatterns(core.serializeExcludePatterns(patterns))), patterns);
 });

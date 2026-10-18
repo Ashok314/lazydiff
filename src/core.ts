@@ -37,12 +37,12 @@ namespace LazyDiff.Core {
 
   export function serializeExcludePatterns(patterns: string[]): string {
     return normalizePatterns(patterns)
-      .map((pattern) => `!${pattern}`)
-      .join(" ");
+      .map((pattern) => `!${quotePattern(pattern)}`)
+      .join(", ");
   }
 
   export function serializeIncludePatterns(patterns: string[]): string {
-    return normalizePatterns(patterns).join(" ");
+    return normalizePatterns(patterns).map(quotePattern).join(", ");
   }
 
   export function normalizePatterns(patterns: string[]): string[] {
@@ -177,12 +177,47 @@ namespace LazyDiff.Core {
   }
 
   function tokenize(value: string): string[] {
-    const matches = value.match(/"[^"]+"|'[^']+'|\S+/g) || [];
-    return matches.map((token) => token.trim());
+    const tokens: string[] = [];
+    let token = "";
+    let quote = "";
+
+    for (let index = 0; index < value.length; index += 1) {
+      const char = value[index];
+      if (quote) {
+        token += char;
+        if (char === "\\" && quote === '"' && index + 1 < value.length) {
+          token += value[++index];
+        } else if (char === quote) {
+          quote = "";
+        }
+      } else if ((char === '"' || char === "'") && (token === "" || EXCLUDE_PREFIXES.includes(token))) {
+        quote = char;
+        token += char;
+      } else if (char === "," || /\s/.test(char)) {
+        if (token) tokens.push(token);
+        token = "";
+      } else {
+        token += char;
+      }
+    }
+
+    if (token) tokens.push(token);
+    return tokens;
   }
 
   function unquote(value: string): string {
+    if (value.startsWith('"') && value.endsWith('"')) {
+      try {
+        return JSON.parse(value) as string;
+      } catch {
+        // Keep filtering while a quoted pattern is being edited.
+      }
+    }
     return value.replace(/^["']|["']$/g, "");
+  }
+
+  function quotePattern(pattern: string): string {
+    return /[\s,"']|^[!-]/.test(pattern) ? JSON.stringify(pattern) : pattern;
   }
 
   function escapeRegExp(value: string): string {
