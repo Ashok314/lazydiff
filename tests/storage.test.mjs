@@ -84,7 +84,7 @@ test("loads filter input and migrates old exclude patterns", async () => {
     "lazydiff.filterInput": "apps !tests/**"
   });
 
-  assert.equal(await migrated.loadFilterInput(), "!tests/** !**/*.spec.ts");
+  assert.equal(await migrated.loadFilterInput(), "!tests/**, !**/*.spec.ts");
   assert.equal(await current.loadFilterInput(), "apps !tests/**");
 });
 

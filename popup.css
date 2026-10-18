@@ -16,6 +16,10 @@ main {
   display: grid;
   gap: 12px;
   padding: 14px;
+  box-sizing: border-box;
+  height: 360px;
+  grid-template-rows: 56px 99px 96px 45px;
+  position: relative;
   font:
     12px -apple-system,
     BlinkMacSystemFont,
@@ -63,9 +67,9 @@ p {
 }
 
 .panel {
+  align-content: center;
   background: var(--lazydiff-panel);
   border: 1px solid var(--lazydiff-border);
-  border-left: 4px solid var(--lazydiff-success);
   border-radius: 8px;
   display: grid;
   gap: 10px;
@@ -74,20 +78,6 @@ p {
 
 .summary {
   font-size: 13px;
-}
-
-.example {
-  align-items: center;
-  display: grid;
-  gap: 8px;
-  grid-template-columns: auto 1fr;
-}
-
-.example span {
-  color: var(--lazydiff-muted);
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
 }
 
 code {
@@ -164,4 +154,139 @@ footer span::before {
   content: "";
   height: 6px;
   width: 6px;
+}
+
+.panel label {
+  font-weight: 600;
+}
+
+.panel:has(.layout-warning:not([hidden])) {
+  gap: 6px;
+}
+
+.layout-warning {
+  font-size: 11px;
+}
+
+.layout-warning a {
+  color: inherit;
+}
+
+.filter-controls {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.filter-controls input,
+.filter-controls button {
+  background: var(--lazydiff-bg);
+  border: 1px solid var(--lazydiff-border);
+  border-radius: 6px;
+  box-sizing: border-box;
+  color: var(--lazydiff-fg);
+  min-width: 0;
+  padding: 6px 8px;
+  font: inherit;
+}
+
+.filter-controls input {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.filter-controls button {
+  cursor: pointer;
+}
+
+input:focus-visible,
+button:focus-visible {
+  outline: 2px solid #0969da;
+  outline-offset: 1px;
+}
+
+.features .diff-additions {
+  color: #1a7f37;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.features .diff-deletions {
+  color: var(--lazydiff-danger);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+#lazydiff-popup-counts:not([hidden]) + .no-count {
+  display: none;
+}
+
+.info-button {
+  margin-left: auto;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  align-items: center;
+  border: 1px solid var(--lazydiff-muted-line);
+  border-radius: 50%;
+  color: var(--lazydiff-muted);
+  cursor: pointer;
+  display: flex;
+  height: 20px;
+  justify-content: center;
+  width: 20px;
+}
+
+#lazydiff-help {
+  background: var(--lazydiff-panel);
+  border: 1px solid var(--lazydiff-border);
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: var(--lazydiff-fg);
+  font:
+    12px -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  max-height: calc(100% - 28px);
+  padding: 14px;
+  width: calc(100% - 28px);
+  max-width: 312px;
+}
+
+#lazydiff-help::backdrop {
+  background: rgba(27, 31, 36, 0.5);
+}
+
+.help-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.help-heading h2 {
+  font-size: 14px;
+  margin: 0;
+}
+
+.help-heading button {
+  background: var(--lazydiff-bg);
+  border: 1px solid var(--lazydiff-border);
+  border-radius: 6px;
+  color: var(--lazydiff-fg);
+  cursor: pointer;
+  font: inherit;
+  padding: 6px 8px;
+}
+
+.info-content {
+  display: grid;
+  gap: 12px;
+}
+
+.info-content code {
+  padding: 0;
+  border: 0;
+  background: none;
 }

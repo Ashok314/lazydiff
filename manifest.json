@@ -23,7 +23,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://github.com/*/*/pull/*"],
+      "matches": ["https://github.com/*"],
       "js": ["dist/types.js", "dist/core.js", "dist/storage.js", "dist/github.js", "dist/content.js"],
       "css": ["src/content.css"],
       "run_at": "document_idle"

@@ -1,6 +1,6 @@
 namespace LazyDiff.GitHub {
   export function isPullFilesPage(url: string = window.location.href): boolean {
-    return /\/pull\/\d+\/(?:files|changes)(?:$|[?#])/.test(url);
+    return /\/pull\/\d+\/(?:files|changes)(?:\/[^?#]*)?(?:$|[?#])/.test(url);
   }
 
   export function collectFiles(root: ParentNode = document): LazyDiff.DiffFile[] {
@@ -9,6 +9,7 @@ namespace LazyDiff.GitHub {
         root.querySelectorAll<HTMLElement>(
           [
             "[class*='PullRequestDiffsList-module__diffEntry']",
+            "[role='region'][id^='diff-'][aria-labelledby]",
             "copilot-diff-entry[data-file-path]",
             "[data-targets*='diff-file-filter.diffEntries']",
             ".file.js-file",
@@ -80,6 +81,7 @@ namespace LazyDiff.GitHub {
   export function getLayoutDebugSnapshot(root: ParentNode = document): Record<string, number> {
     return {
       reactDiffEntries: root.querySelectorAll("[class*='PullRequestDiffsList-module__diffEntry']").length,
+      diffRegions: root.querySelectorAll("[role='region'][id^='diff-'][aria-labelledby]").length,
       copilotDiffEntries: root.querySelectorAll("copilot-diff-entry[data-file-path]").length,
       legacyFiles: root.querySelectorAll(".file.js-file, .js-file[id^='diff-']").length,
       dataFilePaths: root.querySelectorAll("[data-file-path]").length,
@@ -149,51 +151,67 @@ namespace LazyDiff.GitHub {
     };
   }
 
-  export function findLazyDiffMount(root: ParentNode = document): HTMLElement {
-    return (
-      root.querySelector<HTMLElement>("[class*='PullRequestDiffsList-module__diffEntry']") ||
-      root.querySelector<HTMLElement>("#files") ||
-      root.querySelector<HTMLElement>("#files_bucket") ||
-      root.querySelector<HTMLElement>("[data-testid='files-changed-toolbar']") ||
-      root.querySelector<HTMLElement>("[data-testid='diff-toolbar']") ||
-      root.querySelector<HTMLElement>("#files_bucket .diffbar") ||
-      root.querySelector<HTMLElement>(".diffbar") ||
-      root.querySelector<HTMLElement>("[data-pjax-container]") ||
-      document.body
-    );
+  export function findLazyDiffMount(root: ParentNode = document): HTMLElement | null {
+    const mount =
+      root.querySelector<HTMLElement>(
+        "[data-testid='diff-content'] [data-testid='progressive-diffs-list'], [data-testid='diff-content'] [data-testid='virtualized-diffs-list']"
+      ) ||
+      root.querySelector<HTMLElement>("#files_bucket #files") ||
+      null;
+    return mount && !isUnsafeInjectionMount(mount) ? mount : null;
   }
 
   export function findDiffStatMount(root: ParentNode = document): HTMLElement | null {
-    const stableMount = root.querySelector<HTMLElement>("#diffstat, .diffstat");
-    if (stableMount && hasSignedDiffCounts(stableMount) && !isIgnoredDiffStatCandidate(stableMount)) {
+    const stableMount = root.querySelector<HTMLElement>("#diffstat");
+    if (
+      stableMount &&
+      hasSignedDiffCounts(stableMount) &&
+      !isUnsafeInjectionMount(stableMount) &&
+      isVisibleDiffStatMount(stableMount)
+    ) {
       return stableMount;
     }
 
-    const successNodes = Array.from(
-      root.querySelectorAll<HTMLElement>(".color-fg-success, .text-green, [class*='fgColor-success']")
-    );
-    const candidates: HTMLElement[] = [];
-
-    for (const node of successNodes) {
-      if (isIgnoredDiffStatCandidate(node) || !hasAdditionCount(node)) continue;
-
-      let current: HTMLElement | null = node;
-      for (let depth = 0; current && depth < 6; depth += 1) {
-        if (
-          !isIgnoredDiffStatCandidate(current) &&
-          hasSignedDiffCounts(current) &&
-          current.textContent &&
-          current.textContent.trim().length <= 140
-        ) {
-          candidates.push(current);
-          break;
-        }
-
-        current = current.parentElement;
+    const countLabels = root.querySelectorAll<HTMLElement>("span.sr-only");
+    for (const label of Array.from(countLabels)) {
+      const candidate = label.parentElement;
+      const counts = parseAccessibleDiffCounts(label.textContent || "");
+      if (
+        candidate &&
+        counts &&
+        !isUnsafeInjectionMount(candidate) &&
+        isVisibleDiffStatMount(candidate) &&
+        hasMatchingDiffStatValues(candidate, counts)
+      ) {
+        return candidate;
       }
     }
 
-    return candidates.sort((left, right) => textLength(left) - textLength(right))[0] || null;
+    return null;
+  }
+
+  export function readDiffStatCounts(element: HTMLElement): { additions: number; deletions: number } | null {
+    const accessible = parseAccessibleDiffCounts(element.querySelector(".sr-only")?.textContent || "");
+    if (accessible) return accessible;
+    const text = element.textContent || "";
+    const additions = text.match(/\+\s*(\d[\d,]*)/);
+    const deletions = text.match(/[−-]\s*(\d[\d,]*)/);
+    if (!additions || !deletions) return null;
+    return {
+      additions: Number(additions[1].replace(/,/g, "")),
+      deletions: Number(deletions[1].replace(/,/g, ""))
+    };
+  }
+
+  function parseAccessibleDiffCounts(text: string): { additions: number; deletions: number } | null {
+    const match = text.trim().match(/^Lines changed:\s*([\d,]+) additions? & ([\d,]+) deletions?$/);
+    return match
+      ? { additions: Number(match[1].replace(/,/g, "")), deletions: Number(match[2].replace(/,/g, "")) }
+      : null;
+  }
+
+  function isVisibleDiffStatMount(element: HTMLElement): boolean {
+    return element.getClientRects().length > 0 && window.getComputedStyle(element).visibility === "visible";
   }
 
   function parseCount(element: HTMLElement, selector: string): number | null {
@@ -207,14 +225,23 @@ namespace LazyDiff.GitHub {
     return /\+\s*\d[\d,]*/.test(text) && /[−-]\s*\d[\d,]*/.test(text);
   }
 
-  function hasAdditionCount(element: HTMLElement): boolean {
-    return /\+\s*\d[\d,]*/.test(element.textContent || "");
+  function hasMatchingDiffStatValues(element: HTMLElement, counts: { additions: number; deletions: number }): boolean {
+    const values = Array.from(element.querySelectorAll(":scope > span[aria-hidden='true']")).map((node) =>
+      (node.textContent || "").replace(/[\s,]/g, "").replace("−", "-")
+    );
+    const expected = [`+${counts.additions}`, `-${counts.deletions}`];
+    return (
+      values.length > 0 &&
+      values.every((value) => expected.includes(value)) &&
+      (counts.additions === 0 || values.includes(expected[0])) &&
+      (counts.deletions === 0 || values.includes(expected[1]))
+    );
   }
 
   function isInsideFileDiff(element: HTMLElement): boolean {
     return Boolean(
       element.closest(
-        "[class*='PullRequestDiffsList-module__diffEntry'], copilot-diff-entry[data-file-path], [data-targets*='diff-file-filter.diffEntries'], .file.js-file, .js-file[data-path], [data-file-path]"
+        "[data-diff-header-wrapper], [class*='PullRequestDiffsList-module__diffEntry'], [role='region'][id^='diff-'][aria-labelledby], copilot-diff-entry[data-file-path], [data-targets*='diff-file-filter.diffEntries'], .file.js-file, .js-file[data-path], [data-file-path]"
       )
     );
   }
@@ -223,12 +250,8 @@ namespace LazyDiff.GitHub {
     return Boolean(element.closest("#lazydiff-bar, #lazydiff-diffstat, [class*='lazydiff-']"));
   }
 
-  function isIgnoredDiffStatCandidate(element: HTMLElement): boolean {
+  function isUnsafeInjectionMount(element: HTMLElement): boolean {
     return isInsideFileDiff(element) || isInsideLazyDiff(element);
-  }
-
-  function textLength(element: HTMLElement): number {
-    return element.textContent?.trim().length || Number.MAX_SAFE_INTEGER;
   }
 
   function getReactHeaderChangedLineStats(element: HTMLElement): { additions: number; deletions: number } | null {
@@ -245,7 +268,8 @@ namespace LazyDiff.GitHub {
   function parseSignedCount(element: HTMLElement, selector: string, sign: "+" | "-"): number | null {
     for (const node of Array.from(element.querySelectorAll(selector))) {
       const text = node.textContent?.trim() || "";
-      const match = text.match(new RegExp(`\\${sign}\\s*(\\d[\\d,]*)`));
+      const prefix = sign === "+" ? "\\+" : "[−-]";
+      const match = text.match(new RegExp(`${prefix}\\s*(\\d[\\d,]*)`));
       if (match) return Number(match[1].replace(/,/g, ""));
     }
 
@@ -265,6 +289,7 @@ namespace LazyDiff.GitHub {
   }
 
   function fileCandidateScore(element: HTMLElement): number {
+    if (element.matches("[role='region'][id^='diff-'][aria-labelledby]")) return 5;
     if (element.matches("[class*='PullRequestDiffsList-module__diffEntry']")) return 5;
     if (element.matches("copilot-diff-entry[data-file-path]")) return 4;
     if (element.matches("[data-targets*='diff-file-filter.diffEntries']")) return 3;
@@ -276,6 +301,7 @@ namespace LazyDiff.GitHub {
   function findFileContainer(element: HTMLElement): HTMLElement | null {
     const container =
       element.closest<HTMLElement>("[class*='PullRequestDiffsList-module__diffEntry']") ||
+      element.closest<HTMLElement>("[role='region'][id^='diff-'][aria-labelledby]") ||
       element.closest<HTMLElement>("copilot-diff-entry[data-file-path]") ||
       element.closest<HTMLElement>("[data-targets*='diff-file-filter.diffEntries']") ||
       element.closest<HTMLElement>(".file, .js-file") ||

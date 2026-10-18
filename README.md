@@ -13,6 +13,10 @@ LazyDiff is a Chrome extension for GitHub pull request review. It hides PR files
 - Stores filter text locally in Chrome.
 - Makes no network requests.
 
+Use the in-page filter bar or click the extension icon to edit the same filter in the popup. Both inputs stay synchronized. The popup also has a Clear button and shows the visible/hidden counts and remaining additions/deletions for loaded files.
+
+LazyDiff injects the bar and diff counts only at recognized GitHub locations. If the layout changes and a safe location cannot be found, use the popup to filter the files that LazyDiff can still recognize.
+
 ## Status
 
 Chrome Web Store status: published.
@@ -28,20 +32,22 @@ Install from the Chrome Web Store, or load the generated `extension/` directory 
 
 LazyDiff uses a small custom grammar. It is gitignore-like, but not `.gitignore` compatible.
 
-| Input             | Meaning                         |
-| ----------------- | ------------------------------- |
-| `apps`            | Show matching `apps` paths.     |
-| `!apps`           | Hide matching `apps` paths.     |
-| `-apps`           | Same as `!apps`.                |
-| `!/apps`          | Hide only root `apps` paths.    |
-| `*.spec.ts`       | Match spec files at any depth.  |
-| `!*.spec.ts`      | Hide spec files at any depth.   |
-| `.webp`           | Match files ending in `.webp`.  |
-| `apps !*.spec.ts` | Show `apps`, except spec files. |
-| `"docs pages"`    | Quote patterns that use spaces. |
+| Input              | Meaning                         |
+| ------------------ | ------------------------------- |
+| `apps`             | Show matching `apps` paths.     |
+| `!apps`            | Hide matching `apps` paths.     |
+| `-apps`            | Same as `!apps`.                |
+| `!/apps`           | Hide only root `apps` paths.    |
+| `*.spec.ts`        | Match spec files at any depth.  |
+| `!*.spec.ts`       | Hide spec files at any depth.   |
+| `.webp`            | Match files ending in `.webp`.  |
+| `apps, !*.spec.ts` | Show `apps`, except spec files. |
+| `"docs pages"`     | Quote patterns that use spaces. |
 
 Rules:
 
+- Separate patterns with commas: `*.test.ts, *.spec.ts` shows either kind of file; `!*.test.ts, !*.spec.ts` hides both.
+- Space-separated patterns still work for existing filters. Quote paths containing spaces or commas, such as `"docs pages/**"` or `"docs/notes,old.md"`.
 - Plain tokens are include filters.
 - `!` and `-` tokens are exclude filters.
 - Excludes always win over includes.
@@ -88,7 +94,7 @@ The static website deploys to GitHub Pages from `site/` on pushes to `main`.
 
 ## Privacy
 
-LazyDiff runs locally in the browser on GitHub PR pages.
+LazyDiff starts locally on GitHub pages so opening a PR without a full reload works. Filtering and injected controls are limited to PR changed-files views.
 
 - No network requests.
 - No analytics.

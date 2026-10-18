@@ -4,7 +4,7 @@ LazyDiff does not collect, transmit, sell, or share user data.
 
 ## Data Handling
 
-LazyDiff runs locally in your browser on GitHub pull request pages.
+LazyDiff starts locally on GitHub pages to follow navigation without a full reload. It filters files and injects controls only on pull request changed-files pages.
 
 - No analytics.
 - No tracking.
@@ -24,7 +24,7 @@ LazyDiff requests:
 
 - `storage`: used only to save filter text locally.
 
-LazyDiff runs only on GitHub pull request pages matched by the extension manifest.
+The manifest loads LazyDiff on GitHub pages so it can detect navigation into pull request changed-files views. No data leaves the browser.
 
 ## Contact
 

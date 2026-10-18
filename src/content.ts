@@ -10,9 +10,11 @@ namespace LazyDiff.Content {
   let observer: MutationObserver | null = null;
   let debounceTimer = 0;
   let isRendering = false;
-  let suppressObserverUntil = 0;
   let lastRenderDebugKey = "";
   let lastDiffStatDebugKey = "";
+  let lastPublishedState = "";
+  let reviewTotals: LazyDiff.ReviewTotals | null = null;
+  let countAnchorRecognized = false;
 
   void init();
 
@@ -29,16 +31,33 @@ namespace LazyDiff.Content {
   function observePage(): void {
     observer?.disconnect();
     observer = new MutationObserver((mutations) => {
-      if (isRendering || Date.now() < suppressObserverUntil || mutations.every(isLazyDiffMutation)) return;
-      window.clearTimeout(debounceTimer);
-      debounceTimer = window.setTimeout(render, 200);
+      if (isRendering || mutations.every(isLazyDiffMutation)) return;
+      scheduleRender();
     });
 
-    observer.observe(document.body, {
+    observer.observe(document, {
       childList: true,
       subtree: true
     });
+    let lastUrl = window.location.href;
+    window.setInterval(() => {
+      const url = window.location.href;
+      if (url === lastUrl) return;
+      lastUrl = url;
+      scheduleRender();
+    }, 500);
+    window.addEventListener("resize", () => {
+      if (LazyDiff.GitHub.isPullFilesPage()) scheduleRender();
+    });
     debug("observing GitHub page changes");
+  }
+
+  function scheduleRender(): void {
+    if (debounceTimer) return;
+    debounceTimer = window.setTimeout(() => {
+      debounceTimer = 0;
+      render();
+    }, 200);
   }
 
   function observeStorage(): void {
@@ -60,7 +79,12 @@ namespace LazyDiff.Content {
   }
 
   function observeMessages(): void {
-    chrome?.runtime?.onMessage?.addListener((message) => {
+    chrome?.runtime?.onMessage?.addListener((message, _sender, sendResponse) => {
+      if (isStateRequest(message)) {
+        render();
+        sendResponse(getPageState());
+        return;
+      }
       if (!isApplyMessage(message)) return;
 
       filterInput = isApplyFilterMessage(message)
@@ -68,11 +92,18 @@ namespace LazyDiff.Content {
         : LazyDiff.Core.serializeExcludePatterns(message.patterns);
       debug("message apply", filterInput);
       render();
+      sendResponse(getPageState());
     });
   }
 
   function render(): void {
     if (!LazyDiff.GitHub.isPullFilesPage()) {
+      document.getElementById(BAR_ID)?.remove();
+      removeLazyDiffStat();
+      clearLazyDiffHides();
+      reviewTotals = null;
+      countAnchorRecognized = false;
+      publishState();
       debug("not a PR files page", { url: window.location.href });
       return;
     }
@@ -86,7 +117,7 @@ namespace LazyDiff.Content {
       const fileTreeEntries = LazyDiff.GitHub.collectFileTreeEntries();
       const filter = LazyDiff.Core.parseFilterExpression(filterInput);
       const totals = LazyDiff.Core.calculateTotalsForFilter(files, filter);
-      const filterActive = isFilterActive(filter);
+      reviewTotals = totals;
       const matchedPaths = files
         .filter((file) => !LazyDiff.Core.shouldShowPath(file.path, filter))
         .map((file) => file.path);
@@ -145,17 +176,22 @@ namespace LazyDiff.Content {
         }
       );
       updateBarStatus(totals, hiddenFileElements, hiddenTreeElements);
-      upsertLazyDiffStat(totals, filter, filterActive);
+      upsertLazyDiffStat(totals, filter);
+      publishState();
     } finally {
-      suppressObserverUntil = Date.now() + 500;
       isRendering = false;
     }
   }
 
   function upsertBar(): void {
-    if (document.getElementById(BAR_ID)) return;
-
     const mount = LazyDiff.GitHub.findLazyDiffMount();
+    const existing = document.getElementById(BAR_ID);
+    if (existing) {
+      if (!mount) existing.remove();
+      else if (mount.previousElementSibling !== existing) mount.insertAdjacentElement("beforebegin", existing);
+      return;
+    }
+    if (!mount) return;
     const bar = document.createElement("div");
     bar.id = BAR_ID;
     bar.className = "lazydiff-bar";
@@ -171,7 +207,7 @@ namespace LazyDiff.Content {
     input.type = "text";
     input.autocomplete = "off";
     input.spellcheck = false;
-    input.placeholder = "apps !tests/** !*.spec.ts";
+    input.placeholder = "!*.test.ts, !*.spec.ts";
     input.value = filterInput;
 
     const status = document.createElement("div");
@@ -186,17 +222,12 @@ namespace LazyDiff.Content {
 
     bar.append(label, input, status);
 
-    if (mount.matches("[class*='PullRequestDiffsList-module__diffEntry'], #files")) {
-      mount.insertAdjacentElement("beforebegin", bar);
-    } else {
-      mount.insertAdjacentElement("afterbegin", bar);
-    }
+    mount.insertAdjacentElement("beforebegin", bar);
   }
 
   function syncBarInput(): void {
     const input = document.getElementById(INPUT_ID);
     if (!(input instanceof HTMLInputElement)) return;
-    if (document.activeElement === input) return;
 
     const nextValue = filterInput;
     if (input.value !== nextValue) {
@@ -206,6 +237,31 @@ namespace LazyDiff.Content {
 
   function isString(value: unknown): value is string {
     return typeof value === "string";
+  }
+
+  function getPageState(): LazyDiff.PageState {
+    const barInjected = Boolean(document.getElementById(BAR_ID));
+    const hasChangedLines = Boolean(reviewTotals && reviewTotals.visibleLines + reviewTotals.hiddenLines > 0);
+    return {
+      type: "lazydiff.state",
+      filterInput,
+      isFilesPage: LazyDiff.GitHub.isPullFilesPage(),
+      barInjected,
+      layoutRecognized: barInjected && (!hasChangedLines || countAnchorRecognized),
+      totals: reviewTotals
+    };
+  }
+
+  function publishState(): void {
+    const state = getPageState();
+    const key = JSON.stringify(state);
+    if (key === lastPublishedState) return;
+    lastPublishedState = key;
+    void chrome?.runtime?.sendMessage?.(state).catch(() => {});
+  }
+
+  function isStateRequest(value: unknown): boolean {
+    return Boolean(value && typeof value === "object" && "type" in value && value.type === "lazydiff.get-state");
   }
 
   function updateBarStatus(
@@ -220,27 +276,29 @@ namespace LazyDiff.Content {
     status.title = `${hiddenFileElements} diff nodes hidden, ${hiddenTreeElements} navigation nodes hidden`;
   }
 
-  function upsertLazyDiffStat(
-    totals: LazyDiff.ReviewTotals,
-    filter: LazyDiff.FilterExpression,
-    filterActive: boolean
-  ): void {
-    if (!filterActive) {
+  function upsertLazyDiffStat(totals: LazyDiff.ReviewTotals, filter: LazyDiff.FilterExpression): void {
+    const githubDiffstat = LazyDiff.GitHub.findDiffStatMount();
+    countAnchorRecognized = Boolean(githubDiffstat);
+    const bar = document.getElementById(BAR_ID);
+    const status = document.getElementById(STATUS_ID);
+    const mount = githubDiffstat || (bar && status?.parentElement === bar ? status : null);
+    if (!mount) {
+      debug("diffstat mount not found", getDiffStatDebugSnapshot());
       removeLazyDiffStat();
       return;
     }
 
-    const githubDiffstat = LazyDiff.GitHub.findDiffStatMount();
-    if (!githubDiffstat) {
-      debug("diffstat mount not found, using bar fallback", getDiffStatDebugSnapshot());
-      upsertFallbackLazyDiffStat(totals);
-      return;
-    }
-
-    if (!githubDiffstat.dataset.lazydiffOriginalText) {
+    if (githubDiffstat && !githubDiffstat.dataset.lazydiffOriginalText) {
       githubDiffstat.dataset.lazydiffOriginalText = githubDiffstat.textContent?.trim() || "";
     }
-    const visibleDiffStat = calculateVisibleDiffStat(totals, githubDiffstat, filter);
+    const visibleDiffStat = githubDiffstat
+      ? calculateVisibleDiffStat(totals, githubDiffstat, filter)
+      : {
+          additions: totals.visibleAdditions,
+          deletions: totals.visibleDeletions,
+          lines: totals.visibleLines,
+          source: "collected-visible"
+        };
 
     let lazyDiffstat = document.getElementById(DIFFSTAT_ID);
     if (!lazyDiffstat) {
@@ -249,7 +307,7 @@ namespace LazyDiff.Content {
       lazyDiffstat.className = "lazydiff-diffstat";
     }
 
-    githubDiffstat.insertAdjacentElement("beforebegin", lazyDiffstat);
+    mount.insertAdjacentElement("beforebegin", lazyDiffstat);
 
     lazyDiffstat.replaceChildren(
       createDiffStatValue(`+${formatNumber(visibleDiffStat.additions)}`, "success"),
@@ -261,12 +319,14 @@ namespace LazyDiff.Content {
       "lazydiff filtered diff count",
       `Visible: +${formatNumber(visibleDiffStat.additions)} −${formatNumber(visibleDiffStat.deletions)} (${formatNumber(visibleDiffStat.lines)} lines)`,
       `Hidden: +${formatNumber(totals.hiddenAdditions)} −${formatNumber(totals.hiddenDeletions)} (${formatNumber(totals.hiddenLines)} lines)`,
-      `GitHub original: ${githubDiffstat.dataset.lazydiffOriginalText}`
+      githubDiffstat
+        ? `GitHub original: ${githubDiffstat.dataset.lazydiffOriginalText}`
+        : "Counts for loaded files; GitHub's count location is unavailable."
     ].join("\n");
 
     debugDiffStatChanged("diffstat rendered", {
-      mount: describeElement(githubDiffstat),
-      original: githubDiffstat.dataset.lazydiffOriginalText,
+      mount: describeElement(mount),
+      original: githubDiffstat?.dataset.lazydiffOriginalText,
       lazydiff: lazyDiffstat.textContent?.trim(),
       visibleAdditions: visibleDiffStat.additions,
       visibleDeletions: visibleDiffStat.deletions,
@@ -278,32 +338,6 @@ namespace LazyDiff.Content {
 
   function removeLazyDiffStat(): void {
     document.getElementById(DIFFSTAT_ID)?.remove();
-  }
-
-  function upsertFallbackLazyDiffStat(totals: LazyDiff.ReviewTotals): void {
-    const status = document.getElementById(STATUS_ID);
-    if (!status?.parentElement) return;
-
-    let lazyDiffstat = document.getElementById(DIFFSTAT_ID);
-    if (!lazyDiffstat) {
-      lazyDiffstat = document.createElement("span");
-      lazyDiffstat.id = DIFFSTAT_ID;
-      lazyDiffstat.className = "lazydiff-diffstat lazydiff-diffstat-fallback";
-    }
-
-    status.insertAdjacentElement("beforebegin", lazyDiffstat);
-    lazyDiffstat.replaceChildren(
-      createDiffStatValue(`+${formatNumber(totals.visibleAdditions)}`, "success"),
-      createDiffStatValue(`−${formatNumber(totals.visibleDeletions)}`, "danger"),
-      createDiffStatLabel("lazydiff")
-    );
-    lazyDiffstat.title = "lazydiff could not find GitHub's original diff count mount";
-
-    debugDiffStatChanged("diffstat fallback rendered", {
-      lazydiff: lazyDiffstat.textContent?.trim(),
-      visibleAdditions: totals.visibleAdditions,
-      visibleDeletions: totals.visibleDeletions
-    });
   }
 
   function createDiffStatLabel(text: string): HTMLElement {
@@ -320,10 +354,6 @@ namespace LazyDiff.Content {
     return value;
   }
 
-  function isFilterActive(filter: LazyDiff.FilterExpression): boolean {
-    return filter.includePatterns.length > 0 || filter.excludePatterns.length > 0;
-  }
-
   function calculateVisibleDiffStat(
     totals: LazyDiff.ReviewTotals,
     githubDiffstat: HTMLElement,
@@ -338,7 +368,7 @@ namespace LazyDiff.Content {
       };
     }
 
-    const githubTotals = parseGitHubDiffStat(githubDiffstat);
+    const githubTotals = LazyDiff.GitHub.readDiffStatCounts(githubDiffstat);
     if (!githubTotals) {
       return {
         additions: totals.visibleAdditions,
@@ -355,18 +385,6 @@ namespace LazyDiff.Content {
       deletions,
       lines: additions + deletions,
       source: "github-minus-hidden"
-    };
-  }
-
-  function parseGitHubDiffStat(element: HTMLElement): { additions: number; deletions: number } | null {
-    const text = element.textContent || "";
-    const additions = text.match(/\+\s*(\d[\d,]*)/);
-    const deletions = text.match(/[−-]\s*(\d[\d,]*)/);
-    if (!additions || !deletions) return null;
-
-    return {
-      additions: Number(additions[1].replace(/,/g, "")),
-      deletions: Number(deletions[1].replace(/,/g, ""))
     };
   }
 
@@ -399,11 +417,9 @@ namespace LazyDiff.Content {
   }
 
   function isLazyDiffMutation(mutation: MutationRecord): boolean {
-    return (
-      isLazyDiffNode(mutation.target) ||
-      Array.from(mutation.addedNodes).some(isLazyDiffNode) ||
-      Array.from(mutation.removedNodes).some(isLazyDiffNode)
-    );
+    if (isLazyDiffNode(mutation.target)) return true;
+    const changedNodes = [...Array.from(mutation.addedNodes), ...Array.from(mutation.removedNodes)];
+    return changedNodes.length > 0 && changedNodes.every(isLazyDiffNode);
   }
 
   function isLazyDiffNode(node: Node): boolean {

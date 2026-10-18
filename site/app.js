@@ -41,7 +41,7 @@ const I18N = {
       before: "Before: GitHub shows the full pull request diff size.",
       after: "After: hide unwanted files and see the remaining diff size.",
       closeup: "Closeup: LazyDiff count and filter bar on the files changed page.",
-      popup: "Info-only popup. Filtering happens on the PR page."
+      popup: "Filter files and check diff counts from the popup when the in-page controls are unavailable."
     },
     video: {
       eyebrow: "Quick demo",
@@ -52,10 +52,22 @@ const I18N = {
     syntax: {
       eyebrow: "Custom syntax",
       title: "One box for include and exclude.",
+      separator:
+        "Separate patterns with commas: <code>!*.test.ts, !*.spec.ts</code> hides both test and spec files. Existing space-separated filters still work.",
       apps: "Show matching paths.",
       notApps: "Hide matching paths.",
       root: "Hide root paths only.",
       combo: "Show apps, except specs."
+    },
+    changelog: {
+      eyebrow: "Changelog",
+      title: "What’s changed.",
+      upcoming: "Next update · Unreleased",
+      patterns: "Comma-separated patterns, with support for existing filters.",
+      popup: "Shared filters and diff counts in the popup as a backup for the in-page controls.",
+      github: "Updated GitHub layout support and filtering after navigation without a reload.",
+      initial: "0.1.0 · First release",
+      initialBody: "In-page file filters and filtered diff counts for GitHub pull requests."
     },
     privacy: {
       eyebrow: "Private by default",
@@ -83,7 +95,8 @@ const I18N = {
       lede: "No analytics, no tracking, no servers, and no network requests from the extension.",
       effective: "Effective date: July 4, 2026",
       handlingTitle: "Data handling",
-      handlingOne: "LazyDiff runs locally in your browser on GitHub pull request pages.",
+      handlingOne:
+        "LazyDiff starts locally on GitHub pages to follow navigation. Filtering and injected controls are limited to pull request changed-files views.",
       handlingTwo: "No source code, file paths, filter text, or pull request content is sent anywhere.",
       storageTitle: "Local storage",
       storageBody:
@@ -93,7 +106,7 @@ const I18N = {
         "LazyDiff does not collect personally identifiable information, authentication information, financial information, health information, personal communications, location, browsing history, website content, or user activity.",
       permissionsTitle: "Permissions",
       permissionsBody:
-        "LazyDiff requests only <code>storage</code>, used to save filter text locally. The extension runs only on GitHub pull request pages matched by the manifest.",
+        "LazyDiff requests only <code>storage</code>, used to save filter text locally. The extension starts on GitHub pages to follow navigation and filters files only in pull request changed-files views.",
       contactTitle: "Contact",
       contactBody:
         'Questions or privacy requests can be opened on <a href="https://github.com/Ashok314/lazydiff/issues">GitHub Issues</a>.'
@@ -127,7 +140,7 @@ const I18N = {
       before: "Before: GitHubはPR全体の差分サイズを表示します。",
       after: "After: 不要なファイルを隠し、残りの差分サイズを表示します。",
       closeup: "Closeup: Files changedページ上のLazyDiffカウントとフィルターバー。",
-      popup: "ポップアップは情報表示用です。フィルター操作はPRページ上で行います。"
+      popup: "ページ内の操作欄が使えないときも、ポップアップでファイルの絞り込みと差分数の確認ができます。"
     },
     video: {
       eyebrow: "クイックデモ",
@@ -138,10 +151,22 @@ const I18N = {
     syntax: {
       eyebrow: "カスタム構文",
       title: "include と exclude を1つの入力欄で。",
+      separator:
+        "パターンはカンマで区切ります。<code>!*.test.ts, !*.spec.ts</code> でtestとspecの両方を隠せます。従来のスペース区切りも引き続き使えます。",
       apps: "一致するパスを表示します。",
       notApps: "一致するパスを隠します。",
       root: "ルート直下のパスだけ隠します。",
       combo: "appsを表示しつつ、specを除外します。"
+    },
+    changelog: {
+      eyebrow: "変更履歴",
+      title: "更新内容。",
+      upcoming: "次のアップデート · 未公開",
+      patterns: "カンマ区切りのパターンに対応。従来のフィルターも使えます。",
+      popup: "ページ内の操作欄の予備として、ポップアップでも共通のフィルターと差分数を利用できます。",
+      github: "GitHubの新しいレイアウトに対応し、再読み込みなしのページ遷移後も絞り込みが動作します。",
+      initial: "0.1.0 · 初回リリース",
+      initialBody: "GitHubのPull Requestにページ内フィルターと絞り込み後の差分数を追加。"
     },
     privacy: {
       eyebrow: "最初からプライベート",
@@ -169,7 +194,8 @@ const I18N = {
       lede: "分析なし、追跡なし、サーバーなし。拡張機能からのネットワーク通信もありません。",
       effective: "適用日: 2026年7月4日",
       handlingTitle: "データの扱い",
-      handlingOne: "LazyDiffはGitHubのPull Requestページ上で、ブラウザ内だけで動作します。",
+      handlingOne:
+        "LazyDiffはページ遷移を検知するため、GitHubページ上でブラウザ内だけで起動します。ファイルのフィルタリングと操作欄の追加はPull Requestの変更ファイル画面でのみ行います。",
       handlingTwo: "ソースコード、ファイルパス、フィルター文字列、Pull Requestの内容はどこにも送信されません。",
       storageTitle: "ローカルストレージ",
       storageBody:
@@ -179,7 +205,7 @@ const I18N = {
         "LazyDiffは個人識別情報、認証情報、金融情報、健康情報、個人的な通信、位置情報、閲覧履歴、Webサイトの内容、ユーザー活動を収集しません。",
       permissionsTitle: "権限",
       permissionsBody:
-        "LazyDiffが要求する権限は<code>storage</code>のみです。これはフィルター文字列をローカルに保存するために使います。拡張機能はmanifestで指定されたGitHub Pull Requestページ上でのみ動作します。",
+        "LazyDiffが要求する権限は<code>storage</code>のみです。これはフィルター文字列をローカルに保存するために使います。拡張機能はページ遷移を検知するためGitHubページ上で起動し、ファイルのフィルタリングはPull Requestの変更ファイル画面でのみ行います。",
       contactTitle: "連絡先",
       contactBody:
         '質問やプライバシーに関する連絡は<a href="https://github.com/Ashok314/lazydiff/issues">GitHub Issues</a>で受け付けています。'

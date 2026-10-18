@@ -23,6 +23,6 @@ for (const file of ["icon-16.png", "icon-32.png", "icon-48.png", "icon-128.png"]
   await copyFile(new URL(`../assets/icons/${file}`, import.meta.url), new URL(`./icons/${file}`, outputDir));
 }
 
-for (const file of ["types.js", "core.js", "storage.js", "github.js", "content.js"]) {
+for (const file of ["types.js", "core.js", "storage.js", "github.js", "content.js", "popup.js"]) {
   await copyFile(new URL(`../dist/${file}`, import.meta.url), new URL(`./dist/${file}`, outputDir));
 }

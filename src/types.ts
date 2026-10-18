@@ -35,6 +35,15 @@ declare namespace LazyDiff {
     savedExcludePatterns: string[];
     filterInputValue: string;
   }
+
+  interface PageState {
+    type: "lazydiff.state";
+    filterInput: string;
+    isFilesPage: boolean;
+    barInjected: boolean;
+    layoutRecognized: boolean;
+    totals: ReviewTotals | null;
+  }
 }
 
 interface ChromeStorageArea {
@@ -55,8 +64,15 @@ interface ChromeExtensionApi {
     };
   };
   runtime?: {
+    sendMessage?(message: unknown): Promise<unknown>;
     onMessage?: {
-      addListener(callback: (message: unknown) => void): void;
+      addListener(
+        callback: (
+          message: unknown,
+          sender: { tab?: { id?: number } },
+          sendResponse: (response: unknown) => void
+        ) => void
+      ): void;
     };
   };
   tabs?: {

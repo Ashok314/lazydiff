@@ -75,7 +75,7 @@
           </div>
           <div class="filter-bar">
             <strong>lazydiff</strong>
-            <code>apps !*.spec.ts</code>
+            <code>apps, !*.spec.ts</code>
             <span data-i18n="demo.count">12 visible files, 24 hidden files</span>
           </div>
           <div class="github-line active">
@@ -150,8 +150,15 @@
             </figcaption>
           </figure>
           <figure class="screenshot popup-shot">
-            <img src="assets/screenshots/popup.png" alt="LazyDiff extension popup" />
-            <figcaption data-i18n="screenshots.popup">Info-only popup. Filtering happens on the PR page.</figcaption>
+            <img
+              src="assets/screenshots/popup.jpg"
+              width="340"
+              height="360"
+              alt="LazyDiff popup with shared file filters and diff counts"
+            />
+            <figcaption data-i18n="screenshots.popup">
+              Filter files and check diff counts from the popup when the in-page controls are unavailable.
+            </figcaption>
           </figure>
         </div>
       </section>
@@ -161,6 +168,10 @@
           <p class="eyebrow" data-i18n="syntax.eyebrow">Custom syntax</p>
           <h2 data-i18n="syntax.title">One box for include and exclude.</h2>
         </div>
+        <p data-i18n-html="syntax.separator">
+          Separate patterns with commas: <code>!*.test.ts, !*.spec.ts</code> hides both test and spec files. Existing
+          space-separated filters still work.
+        </p>
         <div class="syntax-grid">
           <article>
             <code>apps</code>
@@ -175,9 +186,32 @@
             <p data-i18n="syntax.root">Hide root paths only.</p>
           </article>
           <article>
-            <code>apps !*.spec.ts</code>
+            <code>apps, !*.spec.ts</code>
             <p data-i18n="syntax.combo">Show apps, except specs.</p>
           </article>
+        </div>
+      </section>
+
+      <section class="section split" id="changelog">
+        <div>
+          <p class="eyebrow" data-i18n="changelog.eyebrow">Changelog</p>
+          <h2 data-i18n="changelog.title">What’s changed.</h2>
+        </div>
+        <div>
+          <h3 data-i18n="changelog.upcoming">Next update · Unreleased</h3>
+          <ul>
+            <li data-i18n="changelog.patterns">Comma-separated patterns, with support for existing filters.</li>
+            <li data-i18n="changelog.popup">
+              Shared filters and diff counts in the popup as a backup for the in-page controls.
+            </li>
+            <li data-i18n="changelog.github">
+              Updated GitHub layout support and filtering after navigation without a reload.
+            </li>
+          </ul>
+          <h3 data-i18n="changelog.initial">0.1.0 · First release</h3>
+          <p data-i18n="changelog.initialBody">
+            In-page file filters and filtered diff counts for GitHub pull requests.
+          </p>
         </div>
       </section>
 
@@ -222,6 +256,7 @@
 
     <footer>
       <span>lazydiff</span>
+      <a href="#changelog" data-i18n="changelog.eyebrow">Changelog</a>
       <a href="privacy/" data-i18n="nav.privacy">Privacy</a>
       <a data-site-url="website" href="https://ashok314.github.io/lazydiff/" data-i18n="nav.website">Website</a>
       <a data-site-url="github" href="https://github.com/Ashok314/lazydiff" data-i18n="nav.github">GitHub</a>

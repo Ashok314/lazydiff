@@ -3,6 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="popup.css" />
+    <script src="dist/core.js" defer></script>
+    <script src="dist/storage.js" defer></script>
+    <script src="dist/popup.js" defer></script>
   </head>
   <body>
     <main>
@@ -12,27 +15,54 @@
           <h1>lazydiff</h1>
           <p class="tagline">Lazy enough to review.</p>
         </div>
+        <button
+          id="lazydiff-popup-info"
+          class="info-button"
+          type="button"
+          aria-label="Help and information"
+          title="Help and information"
+          aria-haspopup="dialog"
+          aria-controls="lazydiff-help"
+          aria-expanded="false"
+        >
+          i
+        </button>
       </header>
-
-      <section class="panel">
-        <p class="summary">Hide unwanted PR files with negative filters and see the diff size left to review.</p>
-        <div class="example">
-          <span>try</span>
-          <code>!*.test.ts</code>
+      <section class="panel" aria-label="File filters">
+        <label for="lazydiff-popup-input">File filters</label>
+        <div class="filter-controls">
+          <input
+            id="lazydiff-popup-input"
+            type="text"
+            placeholder="!*.test.ts, !*.spec.ts"
+            autocomplete="off"
+            spellcheck="false"
+            aria-describedby="filter-help"
+            disabled
+          />
+          <button id="lazydiff-popup-clear" type="button" disabled>Clear</button>
         </div>
+        <p id="lazydiff-popup-layout-warning" class="layout-warning" role="status" hidden>
+          GitHub layout changed?
+          <a href="https://github.com/Ashok314/lazydiff/issues/new" target="_blank" rel="noreferrer"
+            >Report / contribute</a
+          >
+        </p>
       </section>
-
-      <div class="features" aria-label="Core features">
+      <div class="features" aria-label="Review counts">
         <div>
-          <strong>Negative filters</strong>
-          <span>Use <code>!</code> to hide paths.</span>
+          <strong>Files</strong>
+          <p id="lazydiff-popup-status" role="status">Connecting…</p>
         </div>
         <div>
-          <strong>Filtered count</strong>
-          <span>See additions/deletions left.</span>
+          <strong>Diff</strong>
+          <p id="lazydiff-popup-counts" hidden>
+            <span id="lazydiff-popup-additions" class="diff-additions"></span>
+            <span id="lazydiff-popup-deletions" class="diff-deletions"></span>
+          </p>
+          <p class="no-count">—</p>
         </div>
       </div>
-
       <footer>
         <div>
           <span>No network</span>
@@ -44,5 +74,17 @@
         </nav>
       </footer>
     </main>
+    <dialog id="lazydiff-help" aria-labelledby="lazydiff-help-title">
+      <div class="help-heading">
+        <h2 id="lazydiff-help-title">Help and information</h2>
+        <button id="lazydiff-help-close" type="button" autofocus>Close</button>
+      </div>
+      <div class="info-content">
+        <p id="filter-help">Separate patterns with commas. Plain patterns show matching files; ! hides them.</p>
+        <p><code>!*.test.ts, !*.spec.ts</code> hides test and spec files.</p>
+        <p>The popup and in-page bar share the same filter. Counts reflect files currently loaded by GitHub.</p>
+        <p>Filters stay in local Chrome storage. No data is sent anywhere.</p>
+      </div>
+    </dialog>
   </body>
 </html>
