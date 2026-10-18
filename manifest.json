@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "lazydiff",
   "description": "__MSG_extensionDescription__",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage_url": "https://ashok314.github.io/lazydiff/",
   "permissions": ["storage"],
   "icons": {
