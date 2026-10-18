@@ -1,0 +1,165 @@
+{
+  "languageCode": {
+    "message": "ja"
+  },
+  "extensionDescription": {
+    "message": "GitHubのPRで不要なファイルを非表示にし、絞り込み後の差分数を確認できます。"
+  },
+  "popupTagline": {
+    "message": "レビューを、少し楽に。"
+  },
+  "helpTitle": {
+    "message": "ヘルプ・設定"
+  },
+  "fileFilters": {
+    "message": "ファイルフィルター"
+  },
+  "filterPlaceholder": {
+    "message": "!*.test.ts, !*.spec.ts"
+  },
+  "clear": {
+    "message": "クリア"
+  },
+  "layoutChanged": {
+    "message": "GitHubのレイアウトが変わった？"
+  },
+  "reportContribute": {
+    "message": "報告・修正に協力"
+  },
+  "reviewCounts": {
+    "message": "レビュー対象の件数"
+  },
+  "files": {
+    "message": "ファイル"
+  },
+  "diff": {
+    "message": "差分"
+  },
+  "connecting": {
+    "message": "接続中…"
+  },
+  "noNetwork": {
+    "message": "ネットワーク通信なし"
+  },
+  "localStorageOnly": {
+    "message": "ローカル保存のみ"
+  },
+  "links": {
+    "message": "リンク"
+  },
+  "website": {
+    "message": "Webサイト"
+  },
+  "privacy": {
+    "message": "プライバシー"
+  },
+  "close": {
+    "message": "閉じる"
+  },
+  "helpPatterns": {
+    "message": "カンマ区切り。! を付けると非表示。"
+  },
+  "helpShared": {
+    "message": "フィルターはページと共通です。件数は読み込み済みファイルが対象です。"
+  },
+  "applyingFilter": {
+    "message": "適用中…"
+  },
+  "openOrRefresh": {
+    "message": "保存済み。GitHubのPRを開くか再読み込みしてください。"
+  },
+  "openFilesTab": {
+    "message": "保存済み。Files changedタブを開いてください。"
+  },
+  "waitingForFiles": {
+    "message": "読み込み待ち…"
+  },
+  "filesNotRecognized": {
+    "message": "ファイルを認識できません。"
+  },
+  "hiddenNodes": {
+    "message": "差分 $diffs$件、ナビゲーション $entries$件を非表示",
+    "placeholders": {
+      "diffs": {
+        "content": "$1"
+      },
+      "entries": {
+        "content": "$2"
+      }
+    }
+  },
+  "diffCountTitle": {
+    "message": "lazydiff 絞り込み後の差分数"
+  },
+  "visibleDiffCounts": {
+    "message": "表示: +$additions$ −$deletions$（$lines$行）",
+    "placeholders": {
+      "additions": {
+        "content": "$1"
+      },
+      "deletions": {
+        "content": "$2"
+      },
+      "lines": {
+        "content": "$3"
+      }
+    }
+  },
+  "hiddenDiffCounts": {
+    "message": "非表示: +$additions$ −$deletions$（$lines$行）",
+    "placeholders": {
+      "additions": {
+        "content": "$1"
+      },
+      "deletions": {
+        "content": "$2"
+      },
+      "lines": {
+        "content": "$3"
+      }
+    }
+  },
+  "githubOriginal": {
+    "message": "GitHubの元の差分数: $counts$",
+    "placeholders": {
+      "counts": {
+        "content": "$1"
+      }
+    }
+  },
+  "loadedCountsOnly": {
+    "message": "読み込み済みファイルの差分数です。GitHubの差分数の表示位置を認識できません。"
+  },
+  "helpShow": {
+    "message": "TypeScriptファイルを表示"
+  },
+  "helpShowExample": {
+    "message": "*.ts"
+  },
+  "helpHide": {
+    "message": "test・specを非表示"
+  },
+  "languageLabel": {
+    "message": "言語"
+  },
+  "languageAuto": {
+    "message": "ブラウザに合わせる"
+  },
+  "languageEnglish": {
+    "message": "English"
+  },
+  "languageJapanese": {
+    "message": "日本語"
+  },
+  "fileCounts": {
+    "message": "$visible$件表示・$hidden$件非表示",
+    "placeholders": {
+      "visible": {
+        "content": "$1"
+      },
+      "hidden": {
+        "content": "$2"
+      }
+    }
+  }
+}

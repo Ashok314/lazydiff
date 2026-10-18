@@ -4,7 +4,7 @@
   "private": true,
   "description": "Negative filters for GitHub PR files with filtered diff-size counts.",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node scripts/build-locales.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "package:extension": "npm run build && node scripts/package-extension.mjs",

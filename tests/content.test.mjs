@@ -2,10 +2,16 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
+import { chromeI18n } from "./helpers/chrome-i18n.mjs";
 
 const settle = () => new Promise((resolve) => setImmediate(resolve));
 
-async function loadContent({ initialFilesPage = true, savedFilter = "" } = {}) {
+async function loadContent({
+  initialFilesPage = true,
+  savedFilter = "",
+  language = "en",
+  savedLanguage = "auto"
+} = {}) {
   let onMutation;
   let onMessage;
   let onStorage;
@@ -59,6 +65,10 @@ async function loadContent({ initialFilesPage = true, savedFilter = "" } = {}) {
       Storage: {
         FILTER_INPUT_KEY: "filter",
         STORAGE_KEY: "exclude",
+        LANGUAGE_KEY: "lazydiff.language",
+        async loadLanguagePreference() {
+          return savedLanguage;
+        },
         async loadFilterInput() {
           return savedFilter;
         }
@@ -123,6 +133,7 @@ async function loadContent({ initialFilesPage = true, savedFilter = "" } = {}) {
       }
     },
     chrome: {
+      i18n: chromeI18n(language),
       runtime: {
         onMessage: {
           addListener(callback) {
@@ -156,6 +167,8 @@ async function loadContent({ initialFilesPage = true, savedFilter = "" } = {}) {
   vm.runInContext(readFileSync("dist/github.js", "utf8"), context);
   Object.assign(context.LazyDiff.GitHub, githubStubs);
   vm.runInContext(readFileSync("dist/core.js", "utf8"), context);
+  vm.runInContext(readFileSync("dist/locales.js", "utf8"), context);
+  vm.runInContext(readFileSync("dist/i18n.js", "utf8"), context);
   vm.runInContext(readFileSync("dist/content.js", "utf8"), context);
   await settle();
   return {
@@ -199,6 +212,9 @@ async function loadContent({ initialFilesPage = true, savedFilter = "" } = {}) {
         response = value;
       });
       return response;
+    },
+    setLanguage(value, area = "local") {
+      onStorage({ "lazydiff.language": { newValue: value } }, area);
     },
     storage(value) {
       onStorage({ filter: { newValue: value } }, "local");
@@ -471,4 +487,76 @@ test("does not report a layout change when GitHub omits a zero-line diff count",
   const state = page.message({ type: "lazydiff.get-state" });
   assert.equal(state.layoutRecognized, true);
   assert.equal(state.totals.visibleLines, 0);
+});
+
+test("Japanese in-page status and count tooltips use the same translation catalog", async () => {
+  const page = await loadContent({ language: "ja" });
+  const bar = new page.Element();
+  const status = new page.Element();
+  status.parentElement = bar;
+  page.nodes.set("lazydiff-bar", bar);
+  page.nodes.set("lazydiff-bar-status", status);
+  page.setMount({ previousElementSibling: bar });
+  const original = new page.Element();
+  original.textContent = "+18 −4";
+  page.enableCountUi(original);
+  page.message({ type: "lazydiff.apply", filterInput: "!*.test.ts, !*.spec.ts" });
+  assert.equal(status.textContent, "1件表示・2件非表示");
+  const count = page.nodes.get("lazydiff-diffstat");
+  assert.match(count.title, /lazydiff 絞り込み後の差分数/);
+  assert.match(count.title, /表示: \+5 −2（7行）/);
+  assert.match(count.title, /GitHubの元の差分数: \+18 −4/);
+  assert.deepEqual(
+    count.children.map((child) => child.textContent),
+    ["+5", "−2", "lazydiff"]
+  );
+});
+
+test("saved and live language preferences update in-page labels without changing the filter", async () => {
+  const page = await loadContent({ language: "ja", savedLanguage: "en", savedFilter: "!*.test.ts" });
+  const bar = new page.Element();
+  const status = new page.Element();
+  status.parentElement = bar;
+  const input = new page.Input();
+  input.value = "!*.test.ts";
+  page.nodes.set("lazydiff-bar", bar);
+  page.nodes.set("lazydiff-bar-status", status);
+  page.nodes.set("lazydiff-bar-input", input);
+  page.setMount({ previousElementSibling: bar });
+  const original = new page.Element();
+  original.textContent = "+18 −4";
+  page.enableCountUi(original);
+  page.message({ type: "lazydiff.get-state" });
+  assert.equal(input.ariaLabel, "File filters");
+  page.setLanguage("ja");
+  assert.equal(input.ariaLabel, "ファイルフィルター");
+  assert.equal(status.textContent, "2件表示・1件非表示");
+  assert.equal(input.value, "!*.test.ts");
+  assert.match(page.nodes.get("lazydiff-diffstat").title, /絞り込み後の差分数/);
+  page.setLanguage("en", "sync");
+  assert.equal(input.ariaLabel, "ファイルフィルター");
+  page.setLanguage("en");
+  assert.equal(input.ariaLabel, "File filters");
+  page.setLanguage("auto");
+  assert.equal(input.ariaLabel, "ファイルフィルター");
+});
+
+test("popup requests apply the selected language immediately without waiting for storage events", async () => {
+  const page = await loadContent({ language: "en", savedLanguage: "en" });
+  const bar = new page.Element();
+  const status = new page.Element();
+  status.parentElement = bar;
+  page.nodes.set("lazydiff-bar", bar);
+  page.nodes.set("lazydiff-bar-status", status);
+  page.setMount({ previousElementSibling: bar });
+  const original = new page.Element();
+  original.textContent = "+18 −4";
+  page.enableCountUi(original);
+  page.message({ type: "lazydiff.get-state", languagePreference: "ja" });
+  assert.equal(status.textContent, "3件表示・0件非表示");
+  assert.match(page.nodes.get("lazydiff-diffstat").title, /絞り込み後の差分数/);
+  page.message({ type: "lazydiff.apply", filterInput: "!*.test.ts", languagePreference: "en" });
+  assert.equal(status.textContent, "2 visible · 1 hidden");
+  page.message({ type: "lazydiff.get-state", languagePreference: "ja" });
+  assert.equal(status.textContent, "2件表示・1件非表示");
 });

@@ -109,3 +109,16 @@ test("ignores storage failures while the extension context reloads", async () =>
   await assert.doesNotReject(() => storage.saveExcludePatterns(["tests/**"]));
   await assert.doesNotReject(() => storage.saveFilterInput("apps !tests/**"));
 });
+
+test("language preference persists separately from file filters and tolerates unavailable storage", async () => {
+  const { storage, writes } = loadStorage({ "lazydiff.filterInput": "!*.snap" });
+  assert.equal(await storage.loadLanguagePreference(), undefined);
+  await storage.saveLanguagePreference("ja");
+  assert.equal(await storage.loadLanguagePreference(), "ja");
+  assert.equal(await storage.loadFilterInput(), "!*.snap");
+  await storage.saveLanguagePreference("auto");
+  assert.deepEqual(plain(writes), [{ "lazydiff.language": "ja" }, { "lazydiff.language": "auto" }]);
+  const broken = loadBrokenStorage();
+  assert.equal(await broken.loadLanguagePreference(), undefined);
+  await assert.doesNotReject(() => broken.saveLanguagePreference("ja"));
+});

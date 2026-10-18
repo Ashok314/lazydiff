@@ -1,0 +1,165 @@
+{
+  "languageCode": {
+    "message": "en"
+  },
+  "extensionDescription": {
+    "message": "Hide unwanted GitHub PR files with negative filters and see the filtered diff size."
+  },
+  "popupTagline": {
+    "message": "Lazy enough to review."
+  },
+  "helpTitle": {
+    "message": "Help & settings"
+  },
+  "fileFilters": {
+    "message": "File filters"
+  },
+  "filterPlaceholder": {
+    "message": "!*.test.ts, !*.spec.ts"
+  },
+  "clear": {
+    "message": "Clear"
+  },
+  "layoutChanged": {
+    "message": "GitHub layout changed?"
+  },
+  "reportContribute": {
+    "message": "Report / contribute"
+  },
+  "reviewCounts": {
+    "message": "Review counts"
+  },
+  "files": {
+    "message": "Files"
+  },
+  "diff": {
+    "message": "Diff"
+  },
+  "connecting": {
+    "message": "Connecting…"
+  },
+  "noNetwork": {
+    "message": "No network"
+  },
+  "localStorageOnly": {
+    "message": "Local storage only"
+  },
+  "links": {
+    "message": "Links"
+  },
+  "website": {
+    "message": "Website"
+  },
+  "privacy": {
+    "message": "Privacy"
+  },
+  "close": {
+    "message": "Close"
+  },
+  "helpPatterns": {
+    "message": "Use commas. Add ! to hide files."
+  },
+  "helpShared": {
+    "message": "The popup and page share filters. Counts cover loaded files."
+  },
+  "applyingFilter": {
+    "message": "Applying filter…"
+  },
+  "openOrRefresh": {
+    "message": "Saved. Open or refresh a GitHub PR."
+  },
+  "openFilesTab": {
+    "message": "Saved. Open the Files changed tab."
+  },
+  "waitingForFiles": {
+    "message": "Waiting for files…"
+  },
+  "filesNotRecognized": {
+    "message": "Files not recognized."
+  },
+  "hiddenNodes": {
+    "message": "$diffs$ diff nodes hidden, $entries$ navigation nodes hidden",
+    "placeholders": {
+      "diffs": {
+        "content": "$1"
+      },
+      "entries": {
+        "content": "$2"
+      }
+    }
+  },
+  "diffCountTitle": {
+    "message": "lazydiff filtered diff count"
+  },
+  "visibleDiffCounts": {
+    "message": "Visible: +$additions$ −$deletions$ ($lines$ lines)",
+    "placeholders": {
+      "additions": {
+        "content": "$1"
+      },
+      "deletions": {
+        "content": "$2"
+      },
+      "lines": {
+        "content": "$3"
+      }
+    }
+  },
+  "hiddenDiffCounts": {
+    "message": "Hidden: +$additions$ −$deletions$ ($lines$ lines)",
+    "placeholders": {
+      "additions": {
+        "content": "$1"
+      },
+      "deletions": {
+        "content": "$2"
+      },
+      "lines": {
+        "content": "$3"
+      }
+    }
+  },
+  "githubOriginal": {
+    "message": "GitHub original: $counts$",
+    "placeholders": {
+      "counts": {
+        "content": "$1"
+      }
+    }
+  },
+  "loadedCountsOnly": {
+    "message": "Counts for loaded files; GitHub's count location is unavailable."
+  },
+  "helpShow": {
+    "message": "Show TypeScript files"
+  },
+  "helpShowExample": {
+    "message": "*.ts"
+  },
+  "helpHide": {
+    "message": "Hide tests and specs"
+  },
+  "languageLabel": {
+    "message": "Language"
+  },
+  "languageAuto": {
+    "message": "Browser language"
+  },
+  "languageEnglish": {
+    "message": "English"
+  },
+  "languageJapanese": {
+    "message": "日本語"
+  },
+  "fileCounts": {
+    "message": "$visible$ visible · $hidden$ hidden",
+    "placeholders": {
+      "visible": {
+        "content": "$1"
+      },
+      "hidden": {
+        "content": "$2"
+      }
+    }
+  }
+}

@@ -9,6 +9,7 @@ namespace LazyDiff.Popup {
   const help = document.getElementById("lazydiff-help") as HTMLDialogElement;
   const closeHelp = document.getElementById("lazydiff-help-close") as HTMLButtonElement;
   const layoutWarning = document.getElementById("lazydiff-popup-layout-warning") as HTMLElement;
+  const languageSelect = document.getElementById("lazydiff-popup-language") as HTMLSelectElement;
   let activeTabId: number | undefined;
   let pendingWrites = 0;
   let writeQueue = Promise.resolve();
@@ -17,6 +18,19 @@ namespace LazyDiff.Popup {
   void init();
 
   async function init(): Promise<void> {
+    const [savedFilter, savedLanguage] = await Promise.all([
+      LazyDiff.Storage.loadFilterInput(),
+      LazyDiff.Storage.loadLanguagePreference()
+    ]);
+    LazyDiff.I18n.setPreference(savedLanguage);
+    localizePopup();
+    languageSelect.disabled = false;
+    languageSelect.addEventListener("change", () => {
+      LazyDiff.I18n.setPreference(languageSelect.value);
+      localizePopup();
+      void LazyDiff.Storage.saveLanguagePreference(LazyDiff.I18n.preference());
+      void requestState();
+    });
     info.addEventListener("click", () => {
       help.showModal();
       info.setAttribute("aria-expanded", "true");
@@ -38,7 +52,7 @@ namespace LazyDiff.Popup {
         help.close();
       }
     });
-    input.value = await LazyDiff.Storage.loadFilterInput();
+    input.value = savedFilter;
     input.disabled = false;
     clear.disabled = false;
     input.addEventListener("input", saveAndApply);
@@ -48,10 +62,23 @@ namespace LazyDiff.Popup {
       saveAndApply();
     });
     chrome?.storage?.onChanged?.addListener((changes, area) => {
+      if (area !== "local") return;
+      let refresh = false;
+      const languageChange = changes[LazyDiff.Storage.LANGUAGE_KEY];
+      if (languageChange) {
+        const previous = LazyDiff.I18n.preference();
+        LazyDiff.I18n.setPreference(languageChange.newValue);
+        if (previous !== LazyDiff.I18n.preference()) {
+          localizePopup();
+          refresh = true;
+        }
+      }
       const change = changes[LazyDiff.Storage.FILTER_INPUT_KEY];
-      if (area !== "local" || !change || pendingWrites > 0) return;
-      input.value = typeof change.newValue === "string" ? change.newValue : "";
-      void requestState();
+      if (change && pendingWrites === 0) {
+        input.value = typeof change.newValue === "string" ? change.newValue : "";
+        refresh = true;
+      }
+      if (refresh) void requestState();
     });
     chrome?.runtime?.onMessage?.addListener((message, sender) => {
       if (sender.tab?.id === activeTabId && isPageState(message)) showState(message);
@@ -65,10 +92,15 @@ namespace LazyDiff.Popup {
     await requestState();
   }
 
+  function localizePopup(): void {
+    LazyDiff.I18n.localize(document);
+    languageSelect.value = LazyDiff.I18n.preference();
+  }
+
   function saveAndApply(): void {
     const value = input.value;
     pendingWrites += 1;
-    status.textContent = "Applying filter…";
+    status.textContent = LazyDiff.I18n.message("applyingFilter");
     counts.hidden = true;
     writeQueue = writeQueue.then(async () => {
       try {
@@ -80,17 +112,24 @@ namespace LazyDiff.Popup {
     });
   }
 
-  async function requestState(message: unknown = { type: "lazydiff.get-state" }): Promise<void> {
+  async function requestState(
+    message: { type: "lazydiff.get-state" } | { type: "lazydiff.apply"; filterInput: string } = {
+      type: "lazydiff.get-state"
+    }
+  ): Promise<void> {
     const version = ++requestVersion;
     try {
       if (activeTabId === undefined || !chrome?.tabs) throw new Error("No active tab");
-      const state = await chrome.tabs.sendMessage(activeTabId, message);
+      const state = await chrome.tabs.sendMessage(activeTabId, {
+        ...message,
+        languagePreference: LazyDiff.I18n.preference()
+      });
       if (version !== requestVersion) return;
       if (!isPageState(state)) throw new Error("Page unavailable");
       showState(state);
     } catch {
       if (version !== requestVersion) return;
-      status.textContent = "Saved. Open or refresh a GitHub PR.";
+      status.textContent = LazyDiff.I18n.message("openOrRefresh");
       counts.hidden = true;
       layoutWarning.hidden = true;
     }
@@ -102,17 +141,20 @@ namespace LazyDiff.Popup {
     counts.hidden = true;
     layoutWarning.hidden = !state.isFilesPage || state.layoutRecognized;
     if (!state.isFilesPage) {
-      status.textContent = "Saved. Open the Files changed tab.";
+      status.textContent = LazyDiff.I18n.message("openFilesTab");
       return;
     }
     if (!state.totals || state.totals.totalFiles === 0) {
-      status.textContent = state.layoutRecognized ? "Waiting for files…" : "Files not recognized.";
+      status.textContent = LazyDiff.I18n.message(state.layoutRecognized ? "waitingForFiles" : "filesNotRecognized");
       return;
     }
     const totals = state.totals;
-    status.textContent = `${totals.visibleFiles} visible · ${totals.hiddenFiles} hidden`;
-    additions.textContent = `+${totals.visibleAdditions.toLocaleString()}`;
-    deletions.textContent = `−${totals.visibleDeletions.toLocaleString()}`;
+    status.textContent = LazyDiff.I18n.message("fileCounts", [
+      LazyDiff.I18n.formatNumber(totals.visibleFiles),
+      LazyDiff.I18n.formatNumber(totals.hiddenFiles)
+    ]);
+    additions.textContent = `+${LazyDiff.I18n.formatNumber(totals.visibleAdditions)}`;
+    deletions.textContent = `−${LazyDiff.I18n.formatNumber(totals.visibleDeletions)}`;
     counts.hidden = false;
   }
 

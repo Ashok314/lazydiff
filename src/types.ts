@@ -1,4 +1,11 @@
 declare namespace LazyDiff {
+  type Language = "en" | "ja";
+  type LanguagePreference = "auto" | Language;
+
+  interface LocaleMessage {
+    message: string;
+    placeholders?: Record<string, { content: string }>;
+  }
   type PatternMode = "include" | "exclude";
 
   interface PatternToken {
@@ -57,6 +64,9 @@ interface ChromeStorageChange {
 }
 
 interface ChromeExtensionApi {
+  i18n?: {
+    getMessage(key: string, substitutions?: string[]): string;
+  };
   storage?: {
     local?: ChromeStorageArea;
     onChanged?: {
@@ -82,3 +92,4 @@ interface ChromeExtensionApi {
 }
 
 declare const chrome: ChromeExtensionApi | undefined;
+declare const LAZYDIFF_LOCALES: Record<LazyDiff.Language, Record<string, LazyDiff.LocaleMessage>>;

@@ -1,6 +1,17 @@
 namespace LazyDiff.Storage {
   export const STORAGE_KEY = "lazydiff.excludePatterns";
   export const FILTER_INPUT_KEY = "lazydiff.filterInput";
+  export const LANGUAGE_KEY = "lazydiff.language";
+
+  export async function loadLanguagePreference(): Promise<unknown> {
+    const area = getLocalStorageArea();
+    return area ? (await safeGet(area, LANGUAGE_KEY))[LANGUAGE_KEY] : undefined;
+  }
+
+  export async function saveLanguagePreference(value: LazyDiff.LanguagePreference): Promise<void> {
+    const area = getLocalStorageArea();
+    if (area) await safeSet(area, { [LANGUAGE_KEY]: value });
+  }
 
   export async function loadExcludePatterns(): Promise<string[]> {
     const area = getLocalStorageArea();

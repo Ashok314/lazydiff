@@ -199,7 +199,8 @@ footer span::before {
 }
 
 input:focus-visible,
-button:focus-visible {
+button:focus-visible,
+select:focus-visible {
   outline: 2px solid #0969da;
   outline-offset: 1px;
 }
@@ -243,7 +244,7 @@ button:focus-visible {
   box-sizing: border-box;
   color: var(--lazydiff-fg);
   font:
-    12px -apple-system,
+    13px -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
@@ -251,6 +252,11 @@ button:focus-visible {
   padding: 14px;
   width: calc(100% - 28px);
   max-width: 312px;
+}
+
+#lazydiff-help[open] {
+  display: flex;
+  flex-direction: column;
 }
 
 #lazydiff-help::backdrop {
@@ -262,7 +268,8 @@ button:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
 .help-heading h2 {
@@ -280,13 +287,69 @@ button:focus-visible {
   padding: 6px 8px;
 }
 
-.info-content {
+.help-body {
   display: grid;
-  gap: 12px;
+  gap: 14px;
+  min-height: 0;
+  overflow-y: auto;
 }
 
-.info-content code {
-  padding: 0;
-  border: 0;
-  background: none;
+.help-body p {
+  color: var(--lazydiff-fg);
+  line-height: 1.5;
+}
+
+.help-examples {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.help-examples dt {
+  color: var(--lazydiff-muted);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.help-examples dd {
+  margin: 0;
+}
+
+.help-examples code {
+  display: block;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.help-body .help-note {
+  color: var(--lazydiff-muted);
+  font-size: 12px;
+}
+
+.help-language {
+  align-items: center;
+  border-top: 1px solid var(--lazydiff-border);
+  display: flex;
+  flex-shrink: 0;
+  gap: 12px;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding-top: 12px;
+}
+
+.help-language label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.help-language select {
+  background: var(--lazydiff-bg);
+  border: 1px solid var(--lazydiff-border);
+  border-radius: 6px;
+  color: var(--lazydiff-fg);
+  cursor: pointer;
+  font: inherit;
+  max-width: 190px;
+  padding: 6px 8px;
 }

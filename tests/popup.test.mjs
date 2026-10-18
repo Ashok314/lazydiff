@@ -2,12 +2,23 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
+import { chromeI18n } from "./helpers/chrome-i18n.mjs";
 
 const settle = () => new Promise((resolve) => setImmediate(resolve));
 
-async function loadPopup({ connected = true, saved = "!*.snap" } = {}) {
+async function loadPopup({ connected = true, saved = "!*.snap", language = "en", savedLanguage = "auto" } = {}) {
   const elements = new Map();
-  for (const id of ["input", "status", "counts", "clear", "additions", "deletions", "info", "layout-warning"]
+  for (const id of [
+    "input",
+    "status",
+    "counts",
+    "clear",
+    "additions",
+    "deletions",
+    "info",
+    "layout-warning",
+    "language"
+  ]
     .map((name) => `lazydiff-popup-${name}`)
     .concat(["lazydiff-help", "lazydiff-help-close"])) {
     elements.set(id, {
@@ -42,6 +53,7 @@ async function loadPopup({ connected = true, saved = "!*.snap" } = {}) {
   }
   const messages = [];
   const writes = [];
+  const languageWrites = [];
   let storageListener;
   let messageListener;
   let filterInput = saved;
@@ -55,6 +67,10 @@ async function loadPopup({ connected = true, saved = "!*.snap" } = {}) {
   });
   const context = vm.createContext({
     document: {
+      documentElement: {},
+      querySelectorAll() {
+        return [];
+      },
       getElementById(id) {
         return elements.get(id);
       }
@@ -62,6 +78,15 @@ async function loadPopup({ connected = true, saved = "!*.snap" } = {}) {
     LazyDiff: {
       Storage: {
         FILTER_INPUT_KEY: "lazydiff.filterInput",
+        LANGUAGE_KEY: "lazydiff.language",
+        async loadLanguagePreference() {
+          return savedLanguage;
+        },
+        async saveLanguagePreference(value) {
+          languageWrites.push(value);
+          savedLanguage = value;
+          storageListener({ "lazydiff.language": { newValue: value } }, "local");
+        },
         async loadFilterInput() {
           return saved;
         },
@@ -73,6 +98,7 @@ async function loadPopup({ connected = true, saved = "!*.snap" } = {}) {
       }
     },
     chrome: {
+      i18n: chromeI18n(language),
       storage: {
         onChanged: {
           addListener(callback) {
@@ -100,6 +126,8 @@ async function loadPopup({ connected = true, saved = "!*.snap" } = {}) {
       }
     }
   });
+  vm.runInContext(readFileSync("dist/locales.js", "utf8"), context);
+  vm.runInContext(readFileSync("dist/i18n.js", "utf8"), context);
   vm.runInContext(readFileSync("dist/popup.js", "utf8"), context);
   await settle();
   return {
@@ -115,6 +143,12 @@ async function loadPopup({ connected = true, saved = "!*.snap" } = {}) {
     closeHelp: elements.get("lazydiff-help-close"),
     messages,
     writes,
+    languageWrites,
+    languageSelect: elements.get("lazydiff-popup-language"),
+    document: context.document,
+    changeLanguageFromAnotherPopup(value) {
+      storageListener({ "lazydiff.language": { newValue: value } }, "local");
+    },
     changeFromPage(value) {
       filterInput = value;
       storageListener({ "lazydiff.filterInput": { newValue: value } }, "local");
@@ -144,7 +178,7 @@ test("typing rapidly applies the latest filter to the active tab and Clear remov
   assert.deepEqual(popup.writes, ["!*.test.ts", "!*.test.ts, !*.spec.ts"]);
   assert.deepEqual(
     popup.messages.filter((message) => message.type === "lazydiff.apply"),
-    [{ id: 42, type: "lazydiff.apply", filterInput: "!*.test.ts, !*.spec.ts" }]
+    [{ id: 42, type: "lazydiff.apply", filterInput: "!*.test.ts, !*.spec.ts", languagePreference: "auto" }]
   );
   popup.clear.listeners.click();
   await settle();
@@ -217,4 +251,50 @@ test("unknown GitHub layouts show a report notice while popup filtering and coun
   assert.equal(popup.status.textContent, "Waiting for files…");
   popup.broadcast(42, { isFilesPage: false, layoutRecognized: false });
   assert.equal(popup.layoutWarning.hidden, true, "Other tabs must not be reported as a layout failure");
+});
+
+test("Japanese popup localizes live status without changing filter syntax or arithmetic", async () => {
+  const popup = await loadPopup({ language: "ja-JP" });
+  assert.equal(popup.status.textContent, "1件表示・2件非表示");
+  assert.equal(popup.additions.textContent, "+5");
+  assert.equal(popup.deletions.textContent, "−2");
+  popup.input.value = "!*.test.ts, !*.spec.ts";
+  popup.input.listeners.input();
+  assert.equal(popup.status.textContent, "適用中…");
+  await settle();
+  assert.equal(popup.writes.at(-1), "!*.test.ts, !*.spec.ts");
+  popup.broadcast(42, { layoutRecognized: false, totals: { totalFiles: 0 } });
+  assert.equal(popup.status.textContent, "ファイルを認識できません。");
+  popup.broadcast(42, { isFilesPage: false });
+  assert.equal(popup.status.textContent, "保存済み。Files changedタブを開いてください。");
+  const disconnected = await loadPopup({ language: "ja", connected: false });
+  assert.equal(disconnected.status.textContent, "保存済み。GitHubのPRを開くか再読み込みしてください。");
+});
+
+test("language selection persists, updates the open popup, and restores without changing filters", async () => {
+  const popup = await loadPopup({ language: "en" });
+  popup.info.listeners.click();
+  popup.languageSelect.value = "ja";
+  popup.languageSelect.listeners.change();
+  await settle();
+  assert.deepEqual(popup.languageWrites, ["ja"]);
+  assert.equal(popup.messages.at(-1).languagePreference, "ja");
+  assert.equal(popup.document.documentElement.lang, "ja");
+  assert.equal(popup.status.textContent, "1件表示・2件非表示");
+  assert.equal(popup.help.open, true);
+  assert.equal(popup.input.value, "!*.snap");
+  assert.deepEqual(popup.writes, []);
+  assert.equal(popup.additions.textContent, "+5");
+  const reopened = await loadPopup({ language: "en", savedLanguage: popup.languageWrites.at(-1) });
+  assert.equal(reopened.languageSelect.value, "ja");
+  assert.equal(reopened.document.documentElement.lang, "ja");
+  reopened.languageSelect.value = "auto";
+  reopened.languageSelect.listeners.change();
+  await settle();
+  assert.equal(reopened.document.documentElement.lang, "en");
+  assert.equal(reopened.messages.at(-1).languagePreference, "auto");
+  reopened.changeLanguageFromAnotherPopup("ja");
+  await settle();
+  assert.equal(reopened.languageSelect.value, "ja");
+  assert.equal(reopened.document.documentElement.lang, "ja");
 });

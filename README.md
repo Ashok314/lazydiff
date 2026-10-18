@@ -17,6 +17,12 @@ Use the in-page filter bar or click the extension icon to edit the same filter i
 
 LazyDiff injects the bar and diff counts only at recognized GitHub locations. If the layout changes and a safe location cannot be found, use the popup to filter the files that LazyDiff can still recognize.
 
+## Languages
+
+Choose **Browser language**, **English**, or **日本語** in the popup’s **Help & settings** panel. The choice is saved locally and applies to the popup and injected controls across open GitHub tabs. Browser language is the default; unsupported browser languages use English. The name **lazydiff** and filter syntax stay the same.
+
+UI messages live in `_locales/en/messages.json` and `_locales/ja/messages.json`. Popup markup uses translation keys. The build bundles both catalogs into `dist/locales.js`, and `src/i18n.ts` selects the saved language or Chrome’s UI language. No translation files are fetched at runtime.
+
 ## Status
 
 Chrome Web Store status: published.

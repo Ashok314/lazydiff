@@ -20,7 +20,12 @@ namespace LazyDiff.Content {
 
   async function init(): Promise<void> {
     debug("loaded", { url: window.location.href });
-    filterInput = await LazyDiff.Storage.loadFilterInput();
+    const [savedFilter, savedLanguage] = await Promise.all([
+      LazyDiff.Storage.loadFilterInput(),
+      LazyDiff.Storage.loadLanguagePreference()
+    ]);
+    filterInput = savedFilter;
+    LazyDiff.I18n.setPreference(savedLanguage);
     debug("loaded filter input", filterInput);
     render();
     observePage();
@@ -65,14 +70,18 @@ namespace LazyDiff.Content {
       if (areaName !== "local") return;
 
       const change = changes[LazyDiff.Storage.FILTER_INPUT_KEY] || changes[LazyDiff.Storage.STORAGE_KEY];
-      if (!change) return;
+      const languageChange = changes[LazyDiff.Storage.LANGUAGE_KEY];
+      if (!change && !languageChange) return;
+      if (languageChange) LazyDiff.I18n.setPreference(languageChange.newValue);
 
-      filterInput =
-        typeof change.newValue === "string"
-          ? change.newValue
-          : Array.isArray(change.newValue)
-            ? LazyDiff.Core.serializeExcludePatterns(change.newValue.filter(isString))
-            : "";
+      if (change) {
+        filterInput =
+          typeof change.newValue === "string"
+            ? change.newValue
+            : Array.isArray(change.newValue)
+              ? LazyDiff.Core.serializeExcludePatterns(change.newValue.filter(isString))
+              : "";
+      }
       debug("storage changed", filterInput);
       render();
     });
@@ -81,11 +90,13 @@ namespace LazyDiff.Content {
   function observeMessages(): void {
     chrome?.runtime?.onMessage?.addListener((message, _sender, sendResponse) => {
       if (isStateRequest(message)) {
+        applyMessageLanguage(message);
         render();
         sendResponse(getPageState());
         return;
       }
       if (!isApplyMessage(message)) return;
+      applyMessageLanguage(message);
 
       filterInput = isApplyFilterMessage(message)
         ? message.filterInput
@@ -207,7 +218,8 @@ namespace LazyDiff.Content {
     input.type = "text";
     input.autocomplete = "off";
     input.spellcheck = false;
-    input.placeholder = "!*.test.ts, !*.spec.ts";
+    input.placeholder = LazyDiff.I18n.message("filterPlaceholder");
+    input.ariaLabel = LazyDiff.I18n.message("fileFilters");
     input.value = filterInput;
 
     const status = document.createElement("div");
@@ -228,6 +240,8 @@ namespace LazyDiff.Content {
   function syncBarInput(): void {
     const input = document.getElementById(INPUT_ID);
     if (!(input instanceof HTMLInputElement)) return;
+    input.placeholder = LazyDiff.I18n.message("filterPlaceholder");
+    input.ariaLabel = LazyDiff.I18n.message("fileFilters");
 
     const nextValue = filterInput;
     if (input.value !== nextValue) {
@@ -264,6 +278,12 @@ namespace LazyDiff.Content {
     return Boolean(value && typeof value === "object" && "type" in value && value.type === "lazydiff.get-state");
   }
 
+  function applyMessageLanguage(value: unknown): void {
+    if (value && typeof value === "object" && "languagePreference" in value) {
+      LazyDiff.I18n.setPreference(value.languagePreference);
+    }
+  }
+
   function updateBarStatus(
     totals: LazyDiff.ReviewTotals,
     hiddenFileElements: number,
@@ -272,8 +292,14 @@ namespace LazyDiff.Content {
     const status = document.getElementById(STATUS_ID);
     if (!status) return;
 
-    status.textContent = `${totals.visibleFiles} visible files, ${totals.hiddenFiles} hidden files`;
-    status.title = `${hiddenFileElements} diff nodes hidden, ${hiddenTreeElements} navigation nodes hidden`;
+    status.textContent = LazyDiff.I18n.message("fileCounts", [
+      formatNumber(totals.visibleFiles),
+      formatNumber(totals.hiddenFiles)
+    ]);
+    status.title = LazyDiff.I18n.message("hiddenNodes", [
+      formatNumber(hiddenFileElements),
+      formatNumber(hiddenTreeElements)
+    ]);
   }
 
   function upsertLazyDiffStat(totals: LazyDiff.ReviewTotals, filter: LazyDiff.FilterExpression): void {
@@ -316,12 +342,20 @@ namespace LazyDiff.Content {
     );
 
     lazyDiffstat.title = [
-      "lazydiff filtered diff count",
-      `Visible: +${formatNumber(visibleDiffStat.additions)} −${formatNumber(visibleDiffStat.deletions)} (${formatNumber(visibleDiffStat.lines)} lines)`,
-      `Hidden: +${formatNumber(totals.hiddenAdditions)} −${formatNumber(totals.hiddenDeletions)} (${formatNumber(totals.hiddenLines)} lines)`,
+      LazyDiff.I18n.message("diffCountTitle"),
+      LazyDiff.I18n.message("visibleDiffCounts", [
+        formatNumber(visibleDiffStat.additions),
+        formatNumber(visibleDiffStat.deletions),
+        formatNumber(visibleDiffStat.lines)
+      ]),
+      LazyDiff.I18n.message("hiddenDiffCounts", [
+        formatNumber(totals.hiddenAdditions),
+        formatNumber(totals.hiddenDeletions),
+        formatNumber(totals.hiddenLines)
+      ]),
       githubDiffstat
-        ? `GitHub original: ${githubDiffstat.dataset.lazydiffOriginalText}`
-        : "Counts for loaded files; GitHub's count location is unavailable."
+        ? LazyDiff.I18n.message("githubOriginal", [githubDiffstat.dataset.lazydiffOriginalText || ""])
+        : LazyDiff.I18n.message("loadedCountsOnly")
     ].join("\n");
 
     debugDiffStatChanged("diffstat rendered", {
